@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B9B7FCEC-745D-4579-8317-00D86E7D33D4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Scribble</RootNamespace>
+    <AssemblyName>Scribble</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="AdvancedNetworkLib">
+      <HintPath>..\..\AdvancedNetworkLib\AdvancedNetworkLib\bin\Debug\AdvancedNetworkLib.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChatControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Client.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="DarkTheme\Button.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DarkTheme\ColorPalette.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DarkTheme\Label.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DarkTheme\NumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DarkTheme\Page.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DarkTheme\TextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DarkTheme\TitleBarButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DrawField.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="FrmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmMain.Designer.cs">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DarkTheme\Form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Message.cs" />
+    <Compile Include="MessageWordChoice.cs" />
+    <Compile Include="Packets.cs" />
+    <Compile Include="Page.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageConnect.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageCreateRoom.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageGame.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageHost.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageHostOverview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageLobby.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageRooms.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PageStart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server.cs" />
+    <EmbeddedResource Include="FrmMain.resx">
+      <DependentUpon>FrmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MessageWordChoice.resx">
+      <DependentUpon>MessageWordChoice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageConnect.resx">
+      <DependentUpon>PageConnect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageCreateRoom.resx">
+      <DependentUpon>PageCreateRoom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageGame.resx">
+      <DependentUpon>PageGame.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageHost.resx">
+      <DependentUpon>PageHost.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageHostOverview.resx">
+      <DependentUpon>PageHostOverview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageLobby.resx">
+      <DependentUpon>PageLobby.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageRooms.resx">
+      <DependentUpon>PageRooms.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PageStart.resx">
+      <DependentUpon>PageStart.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

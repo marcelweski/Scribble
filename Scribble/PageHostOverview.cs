@@ -261,6 +261,7 @@ namespace Scribble
 		{
 			AdvancedNetworkLib.Client client = (sender as AdvancedNetworkLib.Client);
 			ClientUserData userData = client.UserData as ClientUserData;
+			RoomInfo roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
 
 			var obj = e.Object;
 			if (obj is ServerPassword)
@@ -290,18 +291,17 @@ namespace Scribble
 
 				if (userData.State == State.RoomChoice)
 				{
-					// FAKE
-					//this.roomList = new RoomList();
-					//this.roomList.Items.Add(new RoomListItem { Name = "HansDieto", PlayerCount = 5 });
-					//this.roomList.Items.Add(new RoomListItem { Name = "Joachims_launch", PlayerCount = 2 });
-					//this.roomList.Items.Add(new RoomListItem { Name = "ottos", PlayerCount = 0 });
-					//this.roomList.Items.Add(new RoomListItem { Name = "Raum021", PlayerCount = 1 });
-
 					userData.PlayerName = string.Empty;
 					userData.RoomName = string.Empty;
 					userData.Password = 0;
 					userData.IsDrawing = false;
 					userData.Points = 0;
+
+					// if player was in lobby
+					if (oldState == State.Lobby || oldState == State.LobbyReady)
+					{
+						this.sendLobbyListToAll(roomInfo);
+					}
 
 					if (userData.Host)
 					{
@@ -349,7 +349,6 @@ namespace Scribble
 						client.send(new RandomPlayerName { Name = randomPlayerName });
 
 						// update and send lobbylist
-						var roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
 						this.sendLobbyListToAll(roomInfo);
 					}
 					else
@@ -380,14 +379,12 @@ namespace Scribble
 							}
 
 							// update and send lobbylist
-							var roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
 							this.sendLobbyListToAll(roomInfo);
 						}
 					}
 				}
 				else if (userData.State == State.Game)
 				{
-					var roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
 					if (userData.Host)
 					{
 						// send ranklist
@@ -395,8 +392,7 @@ namespace Scribble
 
 						// tell other players that the game starts
 						var clients = Server.Clients.Where(c => c.UserData != null && (c.UserData as ClientUserData).RoomName == userData.RoomName && (c.UserData as ClientUserData).State == State.LobbyReady);
-						foreach (var c in clients)
-							c.send(new StartGame());
+						this.sendObjectToPlayers(clients, new StartGame());
 					}
 					else
 					{
@@ -406,6 +402,8 @@ namespace Scribble
 							// this player joins later
 							// send ranklist
 							this.sendRankListToAll(roomInfo);
+
+							// TODO: send last drawing
 						}
 						else
 						{
@@ -506,19 +504,14 @@ namespace Scribble
 				chatMessage.PlayerName = userData.PlayerName;
 
 				// get all clients in the same room and that are playing
-				var players = Server.Clients.Where(c =>
-				{
-					var u = c.UserData as ClientUserData;
-					return u != null && u.RoomName == userData.RoomName && u.State == State.Game;
-				});
+				var players = this.getPlayersInGame(roomInfo);
 
 				// check if entered word is equal to searched word
-				var roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
 				bool foundWord = (roomInfo.CurrentWord == chatMessage.Text);
 
 				if (foundWord && (roomInfo.RoundInfo.PlayerTimes.ContainsKey(userData.PlayerName) || userData.IsDrawing))
 				{
-					// do nothing...
+					client.send(new WhatDoYouWantInfo());
 				}
 				else
 				{
@@ -551,8 +544,8 @@ namespace Scribble
 						// send revealed word
 						string revealedWord = string.Join(" ", roomInfo.CurrentWord);
 						var choosedWordInfo = new ChoosedWordInfo { Word = revealedWord };
-						foreach (var player in players)
-							player.send(choosedWordInfo);
+
+						this.sendObjectToPlayers(players, choosedWordInfo);
 
 						this.nextDrawer(roomInfo);
 					}
@@ -560,21 +553,15 @@ namespace Scribble
 			}
 			else if (obj is Drawing)
 			{
-				// get every player in the same room
-				var players = Server.Clients.Where(c =>
-				{
-					var u = c.UserData as ClientUserData;
-					return u != null && u.RoomName == userData.RoomName && u.State == State.Game && !u.IsDrawing;
-				});
+				// get every player in the same room, except drawer
+				var players = this.getPlayersInGameExceptDrawer(roomInfo);
 
-				foreach (var player in players)
-					player.send(obj);
+				this.sendObjectToPlayers(players, obj);
 			}
 			else if (obj is ChoosedWord)
 			{
 				var choosenWord = obj as ChoosedWord;
 
-				var roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
 				roomInfo.CurrentWord = choosenWord.Word;
 				roomInfo.CurrentWordRevealed.Clear();
 
@@ -601,6 +588,14 @@ namespace Scribble
 				return u != null && u.RoomName == roomInfo.Name && u.State == State.Game;
 			});
 		}
+		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInLobby(RoomInfo roomInfo)
+		{
+			return Server.Clients.Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u != null && u.RoomName == roomInfo.Name && (u.State == State.Lobby || u.State == State.LobbyReady);
+			});
+		}
 		private IEnumerable<AdvancedNetworkLib.Client> getRemainingDrawerCandidates(RoomInfo roomInfo)
 		{
 			return this.getPlayersInGame(roomInfo).Where(c =>
@@ -617,16 +612,39 @@ namespace Scribble
 				return u != null && u.State == State.RoomChoice;
 			});
 		}
-		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInLobby(RoomInfo roomInfo)
+		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInGameExceptDrawer(RoomInfo roomInfo)
+		{
+			return this.getPlayersInGame(roomInfo).Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return !u.IsDrawing;
+			});
+		}
+		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInLobbyAndGame(RoomInfo roomInfo)
 		{
 			return Server.Clients.Where(c =>
 			{
 				var u = c.UserData as ClientUserData;
-				return u != null && u.RoomName == roomInfo.Name && (u.State == State.Lobby || u.State == State.LobbyReady);
+				return u != null && u.RoomName == roomInfo.Name && (u.State == State.Lobby || u.State == State.LobbyReady || u.State == State.Game);
+			});
+		}
+		private IEnumerable<AdvancedNetworkLib.Client> getHosts()
+		{
+			return Server.Clients.Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u != null && u.Host;
 			});
 		}
 
 		// Private Methods
+		private void sendObjectToPlayers(IEnumerable<AdvancedNetworkLib.Client> players, object obj)
+		{
+			foreach (var player in players)
+			{
+				player.send(obj);
+			}
+		}
 		private void startRound(RoomInfo roomInfo)
 		{
 			// get all players
@@ -636,6 +654,7 @@ namespace Scribble
 			var drawerCandidates = this.getRemainingDrawerCandidates(roomInfo);
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////
+			// TODO: if only one player left in room => kick him
 			var nextDrawer = drawerCandidates.First(); // TODO: make this random
 
 			roomInfo.Drawer = (nextDrawer.UserData as ClientUserData).PlayerName;
@@ -844,15 +863,11 @@ namespace Scribble
 			}
 
 			// send partly revealed word to all players, except drawer
-			var players = Server.Clients.Where(c =>
-			{
-				var u = c.UserData as ClientUserData;
-				return u != null && u.RoomName == roomInfo.Name && u.State == State.Game && !u.IsDrawing;
-			});
+			var players = this.getPlayersInGameExceptDrawer(roomInfo);
 
-			string revealedWord;
 
 			// check if word is fully revealed
+			string revealedWord;
 			if (fullyRevealed)
 			{
 				(sender as Timer).Stop();
@@ -873,68 +888,57 @@ namespace Scribble
 				this.nextDrawer(roomInfo);
 			}
 		}
-		private RankList getRankList(string roomName)
+		private RankList getRankList(RoomInfo roomInfo)
 		{
+			// TODO: prevent calling this function unnecessary often
+			var players = this.getPlayersInGame(roomInfo);
+			players = players.OrderByDescending(c => (c.UserData as ClientUserData).Points);
+
 			RankList rankList = new RankList();
-
-			//RoomInfo roomInfo = this.rooms.Find(c => c.Name == roomName);
-
-			var clients = Server.Clients.Where(c => c.UserData != null && (c.UserData as ClientUserData).State == State.Game && (c.UserData as ClientUserData).RoomName == roomName);
-
-			clients = clients.OrderByDescending(c => (c.UserData as ClientUserData).Points);
-
-			foreach (var c in clients)
+			foreach (var player in players)
 			{
-				var item = new RankListItem
+				var u = player.UserData as ClientUserData;
+				rankList.Items.Add(new RankListItem
 				{
-					Host = (c.UserData as ClientUserData).Host,
-					PlayerName = (c.UserData as ClientUserData).PlayerName,
-					IsDrawing = (c.UserData as ClientUserData).IsDrawing,
-					Points = (c.UserData as ClientUserData).Points,
-				};
-
-				// evaluate current round
-				//if (roomInfo.RoundInfo.StartTime != 0)
-				//{
-				//	if (roomInfo.RoundInfo.PlayerTimes.ContainsKey(item.PlayerName))
-				//	{
-				//		var points = roomInfo.RoundInfo.PlayerTimes[item.PlayerName] - roomInfo.RoundInfo.StartTime;
-				//		item.Points = points;
-				//	}
-				//}
-
-				rankList.Items.Add(item);
+					Host = u.Host,
+					PlayerName = u.PlayerName,
+					IsDrawing = u.IsDrawing,
+					Points = u.Points,
+				});
 			}
 
 			return rankList;
 		}
 		private void sendRankListToAll(RoomInfo roomInfo)
 		{
-			var rankList = this.getRankList(roomInfo.Name);
+			var rankList = this.getRankList(roomInfo);
 
 			var players = this.getPlayersInGame(roomInfo);
-			foreach (var player in players)
-				player.send(rankList);
+			this.sendObjectToPlayers(players, rankList);
 		}
-		private LobbyList getLobbyList(string roomName)
+		private LobbyList getLobbyList(RoomInfo roomInfo)
 		{
-			LobbyList lobbyList = new LobbyList();
+			var players = this.getPlayersInLobbyAndGame(roomInfo);
 
-			var clients = Server.Clients.Where(c => c.UserData != null && ((c.UserData as ClientUserData).State == State.Lobby || (c.UserData as ClientUserData).State == State.LobbyReady || (c.UserData as ClientUserData).State == State.Game) && (c.UserData as ClientUserData).RoomName == roomName);
-			foreach (var c in clients)
+			LobbyList lobbyList = new LobbyList();
+			foreach (var player in players)
 			{
-				lobbyList.Items.Add(new LobbyListItem { PlayerName = (c.UserData as ClientUserData).PlayerName, State = (c.UserData as ClientUserData).State });
+				var u = player.UserData as ClientUserData;
+				lobbyList.Items.Add(new LobbyListItem
+				{
+					PlayerName = u.PlayerName,
+					State = u.State
+				});
 			}
 
 			return lobbyList;
 		}
 		private void sendLobbyListToAll(RoomInfo roomInfo)
 		{
-			var lobbyList = this.getLobbyList(roomInfo.Name);
+			var lobbyList = this.getLobbyList(roomInfo);
 
-			var clients = this.getPlayersInLobby(roomInfo);
-			foreach (var c in clients)
-				c.send(lobbyList);
+			var players = this.getPlayersInLobby(roomInfo);
+			this.sendObjectToPlayers(players, lobbyList);
 		}
 		private void updateAndSendRoomListToAll()
 		{
@@ -947,15 +951,16 @@ namespace Scribble
 		private void updateRoomList()
 		{
 			// get all clients that are hosts
-			var clients = Server.Clients.Where(c => c.UserData != null && (c.UserData as ClientUserData).Host);
+			var hosts = this.getHosts();
 
 			this.roomList.Items.Clear();
-			foreach (var c in clients)
+			foreach (var host in hosts)
 			{
+				var u = host.UserData as ClientUserData;
 				this.roomList.Items.Add(new RoomListItem
 				{
-					Name = (c.UserData as ClientUserData).RoomName,
-					PlayerCount = Server.Clients.Count(c2 => c2.UserData != null && (c2.UserData as ClientUserData).RoomName == (c.UserData as ClientUserData).RoomName),
+					Name = u.RoomName,
+					PlayerCount = Server.Clients.Count(c2 => c2.UserData != null && (c2.UserData as ClientUserData).RoomName == u.RoomName),
 				});
 			}
 		}
@@ -978,7 +983,7 @@ namespace Scribble
 		{
 			var wordList = new List<WordListItem>();
 
-			var lines = File.ReadAllLines(path);
+			var lines = File.ReadAllLines(path, Encoding.UTF8);
 			foreach (var line in lines)
 			{
 				var parts = line.Split(';');

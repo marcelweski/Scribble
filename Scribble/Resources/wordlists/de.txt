@@ -1,20 +1,20 @@
-Achselschweiﬂ;0
-Armdr¸cken;0
+Achselschwei√ü;0
+Armdr√ºcken;0
 Arzt;0
 Auto fahren;0
 Baby ;0
 Blinklicht;0
 Boxer;0
 Brustschwimmen;0
-B‰r;0
-B¸rgermeister;0
+B√§r;0
+B√ºrgermeister;0
 Detektiv;0
 Dickkopf;0
 Dirigent;0
 Dompteur;0
 Einbrecher;0
 einen Fisch angeln;0
-Eisb‰r;0
+Eisb√§r;0
 Elvis;0
 Eskimo;0
 Fahrradkette;0
@@ -25,10 +25,10 @@ Flaschenhals;0
 Floh;0
 Friseuse;0
 Frosch;0
-Fuﬂball spielen;0
+Fu√üball spielen;0
 Gabelstapler;0
 Geld wechseln;0
-Haarfˆhn;0
+Haarf√∂hn;0
 Handschuh;0
 Herzensbrecher;0
 Indianer;0
@@ -40,8 +40,8 @@ Knopf;0
 Kopfschmerzen;0
 Kuchen backen;0
 Kuhglocke;0
-K‰nguru;0
-K‰sef¸ﬂe;0
+K√§nguru;0
+K√§sef√º√üe;0
 Lehrerin;0
 Matrose;0
 Maus;0
@@ -51,7 +51,7 @@ Pferd;0
 Politiker;0
 Putzfrau;0
 Reiterin;0
-Reiﬂverschluss;0
+Rei√üverschluss;0
 Rennfahrer;0
 Riese;0
 Scheibenwischer;0
@@ -66,7 +66,7 @@ Sumoringer;0
 Surfer;0
 Taube;0
 telefonieren;0
-T‰nzerin;0
+T√§nzerin;0
 Zahnarzt;0
 Zwerg;0
-Z‰hne putzen;0
+Z√§hne putzen;0

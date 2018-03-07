@@ -362,6 +362,10 @@ namespace Scribble
 				var foundWordInfo = obj as FoundWordInfo;
 				this.chatControl.AddInfo($"{foundWordInfo.PlayerName} hat das Wort erraten!");
 			}
+			else if (obj is WhatDoYouWantInfo)
+			{
+				this.chatControl.AddInfo("Was willst du damit erreichen?");
+			}
 			else if (obj is WordChoice)
 			{
 				var wordChoice = obj as WordChoice;

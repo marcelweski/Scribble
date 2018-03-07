@@ -175,6 +175,10 @@ namespace Scribble
 	}
 
 	[Serializable]
+	public class WhatDoYouWantInfo
+	{ }
+
+	[Serializable]
 	public class WordChoice
 	{
 		public List<string> Words { get; set; }

@@ -303,6 +303,23 @@ namespace Scribble
 						this.sendLobbyListToAll(roomInfo);
 					}
 
+					// if player was in game
+					if (oldState == State.Game)
+					{
+						// check if only one player is left in game
+						var playersInGame = this.getPlayersInGame(roomInfo);
+						if (playersInGame.Count() == 1)
+						{
+							// kick last player in game
+							playersInGame.First().send(new KickedNoMorePlayer());
+						}
+						else if (playersInGame.Count() > 1)
+						{
+							// update ranklist for players in game
+							this.sendRankListToAll(roomInfo);
+						}
+					}
+
 					if (userData.Host)
 					{
 						userData.Host = false;
@@ -565,6 +582,9 @@ namespace Scribble
 				roomInfo.CurrentWord = choosenWord.Word;
 				roomInfo.CurrentWordRevealed.Clear();
 
+				// store choosen word to list with choosen words => solution is a bit ugly
+				roomInfo.ChoosenWordIndices.Add(this.wordList.IndexOf(this.wordList.First(w => w.Word == choosenWord.Word)));
+
 				var timer = roomInfo.RoundInfo.WordUpdateTimer = new Timer();
 				timer.Interval = (int)((this.roundDuration * 1000.0) / choosenWord.Word.Length);
 				timer.Tick += (s2, e2) => this.revealCharOfWord(s2, roomInfo);
@@ -678,12 +698,8 @@ namespace Scribble
 				p.send(simpleRoundInfo);
 			}
 
-			// choose words
-			var wordChoice = new WordChoice();
-			wordChoice.Words.Add(this.wordList.ElementAt(Server.rand.Next(this.wordList.Count)).Word);
-			wordChoice.Words.Add(this.wordList.ElementAt(Server.rand.Next(this.wordList.Count)).Word);
-			wordChoice.Words.Add(this.wordList.ElementAt(Server.rand.Next(this.wordList.Count)).Word);
-			nextDrawer.send(wordChoice);
+			// send word choice
+			this.sendWordChoice(nextDrawer, roomInfo);
 			///////////////////////////////////////////////////////////////////////////////////////////////////////
 		}
 		private void nextDrawer(RoomInfo roomInfo)
@@ -756,12 +772,8 @@ namespace Scribble
 				//roomInfo.RoundInfo.Number++;
 				roomInfo.RoundInfo.StartTime = DateTime.Now.Ticks;
 
-				// choose words
-				var wordChoice = new WordChoice();
-				wordChoice.Words.Add(this.wordList.ElementAt(Server.rand.Next(this.wordList.Count)).Word);
-				wordChoice.Words.Add(this.wordList.ElementAt(Server.rand.Next(this.wordList.Count)).Word);
-				wordChoice.Words.Add(this.wordList.ElementAt(Server.rand.Next(this.wordList.Count)).Word);
-				nextDrawer.send(wordChoice);
+				// send word choice
+				this.sendWordChoice(nextDrawer, roomInfo);
 				///////////////////////////////////////////////////////////////////////////////////////////////////////
 			}
 			else
@@ -990,7 +1002,23 @@ namespace Scribble
 				wordList.Add(new WordListItem { Word = parts[0], DownVotes = Convert.ToInt32(parts[1]) });
 			}
 
+			if (wordList.Count < 10)
+				throw new Exception("Not enough words in wordlist! The wordlist has to contain at least 10 words!");
+
 			return wordList;
+		}
+		private void sendWordChoice(AdvancedNetworkLib.Client player, RoomInfo roomInfo)
+		{
+			var availableWords = this.wordList.Where(w => !roomInfo.ChoosenWordIndices.Contains(this.wordList.IndexOf(w))).ToList();
+
+			var wordChoice = new WordChoice();
+			for (int i = 0; i < 3; i++)
+			{
+				var randomWord = availableWords.ElementAt(Server.rand.Next(availableWords.Count));
+				wordChoice.Words.Add(randomWord.Word);
+				availableWords.Remove(randomWord);
+			}
+			player.send(wordChoice);
 		}
 	}
 }

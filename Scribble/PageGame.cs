@@ -393,6 +393,16 @@ namespace Scribble
 				var sri = obj as SimpleRoundInfo;
 				this.lblRoundInfo.Text = $"Runde {sri.Current} von {sri.Total}";
 			}
+			else if (obj is KickedNoMorePlayer)
+			{
+				this.Parent.Back();
+				MessageBox.Show("Alle Spieler haben das Spiel verlassen");
+			}
+			else if (obj is KickedByHost)
+			{
+				this.Parent.Back();
+				MessageBox.Show("Du wurdest aus dem Spiel geworfen!");
+			}
 		}
 
 		// Control Events

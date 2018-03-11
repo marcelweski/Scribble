@@ -28,18 +28,19 @@ namespace DarkTheme
 		private TitleBarButton btnBack;
 
 		private bool backClickedSet = false;
+		private event EventHandler backClicked;
 		public event EventHandler BackClicked
 		{
 			add
 			{
-				this.btnBack.Click += value;
+				this.backClicked += value;
 				this.backClickedSet = true;
 				this.UpdateBackButton();
 			}
 
 			remove
 			{
-				this.btnBack.Click -= null;
+				this.backClicked -= value;
 				this.backClickedSet = false;
 				this.UpdateBackButton();
 			}
@@ -95,6 +96,7 @@ namespace DarkTheme
 			this.btnBack.Left = 1;
 			this.btnBack.Type = TitleBarButton.EType.Back;
 			this.btnBack.TabStop = false;
+			this.btnBack.Click += (s, e) => this.Back();
 			this.Controls.Add(this.btnBack);
 
 			this.pnlResizeRight = new Panel();
@@ -202,6 +204,14 @@ namespace DarkTheme
 
 		//	base.WndProc(ref m);
 		//}
+
+		public void Back()
+		{
+			if (this.backClickedSet)
+			{
+				this.backClicked(this, EventArgs.Empty);
+			}
+		}
 
 		public void ToogleMaximized()
 		{

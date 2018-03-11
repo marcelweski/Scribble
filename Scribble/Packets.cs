@@ -271,4 +271,12 @@ namespace Scribble
 	{
 
 	}
+
+	[Serializable]
+	public class KickedNoMorePlayer
+	{ }
+
+	[Serializable]
+	public class KickedByHost
+	{ }
 }

@@ -12,8 +12,9 @@ namespace Scribble
 	{
 		private DarkTheme.Button btnStop;
 		private ListView lvwRooms;
-		private ColumnHeader colName;
-		private ColumnHeader colHost;
+		private ColumnHeader colRoomName;
+		private ColumnHeader colPlayersInLobby;
+		private ColumnHeader colPlayersInGame;
 		private DarkTheme.Label lblInfo;
 		private DarkTheme.Label lblClientCount;
 		private DarkTheme.Label lblPlayerLobbyCount;
@@ -24,8 +25,8 @@ namespace Scribble
 		private int roundDuration = 60; // in seconds
 
 		////////////////////////////////////////////////////////////////////////////////////
-		private RoomList roomList;
 		private List<RoomInfo> rooms;
+		private ColumnHeader colSpieler;
 
 		private class WordListItem
 		{
@@ -44,7 +45,6 @@ namespace Scribble
 
 			this.lblInfo.Text = $"Denke daran den Port {Server.Port} mit dem TCP-Protokoll auf deinem Router freizugeben!";
 
-			this.roomList = new RoomList();
 			this.rooms = new List<RoomInfo>();
 			this.wordList = this.loadWordListFromFile("../../Resources/wordlists/de.txt");
 		}
@@ -54,13 +54,15 @@ namespace Scribble
 			this.lblTitle = new DarkTheme.Label();
 			this.btnStop = new DarkTheme.Button();
 			this.lvwRooms = new System.Windows.Forms.ListView();
-			this.colName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.colHost = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colRoomName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colPlayersInLobby = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colPlayersInGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.lblInfo = new DarkTheme.Label();
 			this.lblClientCount = new DarkTheme.Label();
 			this.lblPlayerLobbyCount = new DarkTheme.Label();
 			this.lblPlayerGameCount = new DarkTheme.Label();
 			this.lblHostCount = new DarkTheme.Label();
+			this.colSpieler = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.SuspendLayout();
 			// 
 			// lblTitle
@@ -95,11 +97,13 @@ namespace Scribble
 			// 
 			// lvwRooms
 			// 
-			this.lvwRooms.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)));
+			this.lvwRooms.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
 			this.lvwRooms.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-			this.colName,
-			this.colHost});
+            this.colRoomName,
+            this.colPlayersInLobby,
+            this.colPlayersInGame,
+            this.colSpieler});
 			this.lvwRooms.Location = new System.Drawing.Point(68, 138);
 			this.lvwRooms.Name = "lvwRooms";
 			this.lvwRooms.Size = new System.Drawing.Size(403, 320);
@@ -107,15 +111,20 @@ namespace Scribble
 			this.lvwRooms.UseCompatibleStateImageBehavior = false;
 			this.lvwRooms.View = System.Windows.Forms.View.Details;
 			// 
-			// colName
+			// colRoomName
 			// 
-			this.colName.Text = "Name";
-			this.colName.Width = 92;
+			this.colRoomName.Text = "Raumname";
+			this.colRoomName.Width = 120;
 			// 
-			// colHost
+			// colPlayersInLobby
 			// 
-			this.colHost.Text = "Host";
-			this.colHost.Width = 135;
+			this.colPlayersInLobby.Text = "Spieler in Lobby";
+			this.colPlayersInLobby.Width = 90;
+			// 
+			// colPlayersInGame
+			// 
+			this.colPlayersInGame.Text = "Spieler im Spiel";
+			this.colPlayersInGame.Width = 85;
 			// 
 			// lblInfo
 			// 
@@ -177,6 +186,11 @@ namespace Scribble
 			this.lblHostCount.TabIndex = 8;
 			this.lblHostCount.Text = "Hosts: 0";
 			// 
+			// colSpieler
+			// 
+			this.colSpieler.Text = "Spieler";
+			this.colSpieler.Width = 50;
+			// 
 			// PageHostOverview
 			// 
 			this.Controls.Add(this.lblHostCount);
@@ -225,22 +239,12 @@ namespace Scribble
 		{
 			this.lblClientCount.Text = $"Verbundene Clients: {e.Clients.Count()}";
 
-			// update and send roomlist
-			this.updateAndSendRoomListToAll();
-
-			// update overview
-			this.updateOverview();
-
 			// TODO: if host leaves room, set new host
 
 			// update roominfos
 			lock (this.rooms)
 			{
-				foreach (var roomInfo in this.rooms)
-				{
-					if (!this.roomList.Items.Exists(r => r.Name == roomInfo.Name))
-						this.rooms.Remove(roomInfo);
-				}
+				this.sendRoomListToAll();
 			}
 
 			// update and send lobbylists
@@ -301,6 +305,7 @@ namespace Scribble
 					if (oldState == State.Lobby || oldState == State.LobbyReady)
 					{
 						this.sendLobbyListToAll(roomInfo);
+						this.sendRoomListToAll();
 					}
 
 					// if player was in game
@@ -318,6 +323,9 @@ namespace Scribble
 							// update ranklist for players in game
 							this.sendRankListToAll(roomInfo);
 						}
+
+						// update overview
+						this.updateOverview();
 					}
 
 					if (userData.Host)
@@ -325,10 +333,8 @@ namespace Scribble
 						userData.Host = false;
 
 						// update and send roomlist
-						this.updateAndSendRoomListToAll();
-
-						// update overview
-						this.updateOverview();
+						this.sendRoomListToAll();
+					
 					}
 					else
 					{
@@ -399,6 +405,9 @@ namespace Scribble
 							this.sendLobbyListToAll(roomInfo);
 						}
 					}
+
+					// update and send roomlist
+					this.sendRoomListToAll();
 				}
 				else if (userData.State == State.Game)
 				{
@@ -439,6 +448,8 @@ namespace Scribble
 							}
 						}
 					}
+
+					this.sendRoomListToAll();
 				}
 			}
 			else if (obj is CreateRoom)
@@ -469,12 +480,6 @@ namespace Scribble
 					}
 
 					client.send(new Success { Job = Job.RoomCreation });
-
-					// update and send roomlist
-					this.updateAndSendRoomListToAll();
-
-					// update overview
-					this.updateOverview();
 				}
 			}
 			else if (obj is JoinRoom)
@@ -501,6 +506,8 @@ namespace Scribble
 
 					client.send(new Success { Job = Job.RoomJoin });
 				}
+
+				this.updateOverview();
 			}
 			else if (obj is StartGame)
 			{
@@ -900,6 +907,7 @@ namespace Scribble
 				this.nextDrawer(roomInfo);
 			}
 		}
+
 		private RankList getRankList(RoomInfo roomInfo)
 		{
 			// TODO: prevent calling this function unnecessary often
@@ -928,6 +936,7 @@ namespace Scribble
 			var players = this.getPlayersInGame(roomInfo);
 			this.sendObjectToPlayers(players, rankList);
 		}
+
 		private LobbyList getLobbyList(RoomInfo roomInfo)
 		{
 			var players = this.getPlayersInLobbyAndGame(roomInfo);
@@ -952,43 +961,64 @@ namespace Scribble
 			var players = this.getPlayersInLobby(roomInfo);
 			this.sendObjectToPlayers(players, lobbyList);
 		}
-		private void updateAndSendRoomListToAll()
-		{
-			this.updateRoomList();
 
-			var clients = this.getPlayersInRoomChoice();
-			foreach (var c in clients)
-				this.sendRoomList(c);
-		}
-		private void updateRoomList()
+		private RoomList getRoomList()
 		{
-			// get all clients that are hosts
-			var hosts = this.getHosts();
-
-			this.roomList.Items.Clear();
-			foreach (var host in hosts)
+			RoomList roomList = new RoomList();
+			foreach (var roomInfo in this.rooms)
 			{
-				var u = host.UserData as ClientUserData;
-				this.roomList.Items.Add(new RoomListItem
+				roomList.Items.Add(new RoomListItem
 				{
-					Name = u.RoomName,
-					PlayerCount = Server.Clients.Count(c2 => c2.UserData != null && (c2.UserData as ClientUserData).RoomName == u.RoomName),
+					Name = roomInfo.Name,
+					PlayersInLobby = this.getPlayersInLobby(roomInfo).Count(),
+					PlayersInGame = this.getPlayersInGame(roomInfo).Count()
 				});
 			}
+			return roomList;
 		}
+		private void sendRoomListToAll()
+		{
+			// TODO: make this more efficent
+			var roomList = this.getRoomList();
+
+			var players = this.getPlayersInRoomChoice();
+			this.sendObjectToPlayers(players, roomList);
+
+			this.updateOverview();
+		}
+
+		//private void updateRoomList()
+		//{
+		//	// get all clients that are hosts
+		//	var hosts = this.getHosts();
+
+		//	this.roomList.Items.Clear();
+		//	foreach (var host in hosts)
+		//	{
+		//		var u = host.UserData as ClientUserData;
+		//		this.roomList.Items.Add(new RoomListItem
+		//		{
+		//			Name = u.RoomName,
+		//			PlayerCount = Server.Clients.Count(c2 => c2.UserData != null && (c2.UserData as ClientUserData).RoomName == u.RoomName),
+		//		});
+		//	}
+		//}
 		private void sendRoomList(AdvancedNetworkLib.Client client)
 		{
-			client.send(this.roomList);
+			// TODO: make this more efficent
+			var roomList = this.getRoomList();
+
+			client.send(roomList);
 		}
 		private void updateOverview()
 		{
-			if (this.roomList != null)
+			// TODO: make this more efficent
+			var roomList = this.getRoomList();
+
+			this.lvwRooms.Items.Clear();
+			foreach (var room in roomList.Items)
 			{
-				this.lvwRooms.Items.Clear();
-				foreach (var item in this.roomList.Items)
-				{
-					this.lvwRooms.Items.Add(new ListViewItem(new string[] { item.Name, item.PlayerCount.ToString() }));
-				}
+				this.lvwRooms.Items.Add(new ListViewItem(new string[] { room.Name, room.PlayersInLobby.ToString(), room.PlayersInGame.ToString(), room.TotalPlayers.ToString() }));
 			}
 		}
 		private List<WordListItem> loadWordListFromFile(string path)

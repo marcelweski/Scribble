@@ -205,7 +205,7 @@ namespace Scribble
 				this.lvwRooms.Items.Clear();
 				foreach (var item in roomList.Items)
 				{
-					this.lvwRooms.Items.Add(new ListViewItem(new string[] { item.Name, item.PlayerCount.ToString() }));
+					this.lvwRooms.Items.Add(new ListViewItem(new string[] { item.Name, item.TotalPlayers.ToString() }));
 				}
 			}
 			else if (obj is Success)

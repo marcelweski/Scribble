@@ -33,8 +33,10 @@ namespace Scribble
 	[Serializable]
 	public struct RoomListItem
 	{
-		public string Name;
-		public int PlayerCount;
+		public string Name { get; set; }
+		public int PlayersInLobby { get; set; }
+		public int PlayersInGame { get; set; }
+		public int TotalPlayers { get => this.PlayersInLobby + this.PlayersInGame; }
 	}
 
 	[Serializable]

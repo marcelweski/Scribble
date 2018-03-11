@@ -39,8 +39,7 @@
 			this.ClientSize = new System.Drawing.Size(1100, 600);
 			this.MinimumSize = new System.Drawing.Size(800, 500);
 			this.Name = "FrmMain";
-			this.Text = "Scribble - v0.1 Beta";
-			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMain_KeyDown);
+			this.Text = "Scribble - v1.0";
 			this.ResumeLayout(false);
 
 		}

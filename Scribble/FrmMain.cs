@@ -12,14 +12,7 @@ namespace Scribble
 {
 	public partial class FrmMain : DarkTheme.Form
 	{
-		//private PageStart pageStart;
-		//private PageHost pageHost;
-		//private PageJoin pageJoin;
-		//private PageLobby pageLobby;
 		private Stack<DarkTheme.Page> stackPages;
-
-		public AdvancedNetworkLib.Server Server { get; private set; }
-		public AdvancedNetworkLib.Client Client { get; private set; }
 
 		public FrmMain()
 		{
@@ -29,91 +22,18 @@ namespace Scribble
 
 			this.stackPages = new Stack<DarkTheme.Page>();
 
-			//this.SizeChanged += this.FrmMain_SizeChanged;
-
 			this.FormClosed += FrmMain_FormClosed;
-
-			//this.pageStart = new PageStart();
-			//this.pageStart.MouseDown += (s, e) => this.OnMouseDown(e);
-			//this.pageStart.MouseMove += (s, e) => this.OnMouseMove(e);
-			//this.pageStart.btnHost.Click += BtnHost_Click;
-			//this.pageStart.btnJoin.Click += BtnJoin_Click;
-			//this.pageStart.btnLobby.Click += BtnLobby_Click;
-			//this.Controls.Add(this.pageStart);
-
-			//this.pageHost = new PageHost();
-			//this.pageHost.MouseDown += (s, e) => this.OnMouseDown(e);
-			//this.pageHost.MouseMove += (s, e) => this.OnMouseMove(e);
-			//this.pageHost.Visible = false;
-			//this.pageHost.btnBack.Click += BtnBack_Click;
-			//this.Controls.Add(this.pageHost);
-
-			//this.pageJoin = new PageJoin();
-			//this.pageJoin.MouseDown += (s, e) => this.OnMouseDown(e);
-			//this.pageJoin.MouseMove += (s, e) => this.OnMouseMove(e);
-			//this.pageJoin.Visible = false;
-			//this.Controls.Add(this.pageJoin);
-
-			//this.pageLobby = new PageLobby();
-			//this.pageLobby.MouseDown += (s, e) => this.OnMouseDown(e);
-			//this.pageLobby.MouseMove += (s, e) => this.OnMouseMove(e);
-			//this.pageLobby.Visible = false;
-			//this.pageLobby.btnExit.Click += BtnExit_Click;
-			//this.Controls.Add(this.pageLobby);
-
-			//this.Width = 1366 / 2;
-			//this.Height = 768 / 2;
-
-			this.Server = new AdvancedNetworkLib.Server(this);
-			this.Server.ErrorOccurred += Server_ErrorOccurred;
-			this.Server.StateChanged += Server_StateChanged;
-
-			this.Client = new AdvancedNetworkLib.Client(this);
-			this.Client.ErrorOccurred += Client_ErrorOccurred;
-			this.Client.ConnectionChanged += Client_ConnectionChanged;
 
 			this.openPage(new PageStart());
 		}
 
-		private void Client_ConnectionChanged(object sender, AdvancedNetworkLib.ConnectionChangedEventArgs e)
-		{
-			if (e.Connected)
-			{
-				this.closeCurrentPageAndOpenNewPage(new PageLobby());
-			}
-			else
-			{
-				if (e.Lost)
-				{
-					this.closeCurrentPage();
-					MessageBox.Show("Der Server hatte kein Bock mehr!");
-				}
-			}
-		}
-
-		private void Client_ErrorOccurred(object sender, AdvancedNetworkLib.ErrorOccurredEventArgs e)
-		{
-			MessageBox.Show(e.Exception.Message);
-		}
-
 		private void FrmMain_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			this.Server?.stop();
+			Server.stop();
+			Client.disconnect();
 		}
 
-		private void Server_StateChanged(object sender, AdvancedNetworkLib.StateChangedEventArgs e)
-		{
-			if (e.Listening)
-			{
-				this.closeCurrentPageAndOpenNewPage(new PageLobby());
-			}
-		}
-
-		private void Server_ErrorOccurred(object sender, AdvancedNetworkLib.ErrorOccurredEventArgs e)
-		{
-			MessageBox.Show(e.Exception.Message);
-		}
-
+		// Page Control Methods
 		public void openPage(DarkTheme.Page page)
 		{
 			if (this.stackPages.Count > 0)
@@ -136,7 +56,6 @@ namespace Scribble
 			this.stackPages.Push(page);
 			page.Show();
 		}
-
 		public void closeCurrentPage(object sender, EventArgs e)
 		{
 			this.closeCurrentPage();
@@ -200,10 +119,6 @@ namespace Scribble
 			}
 		}
 
-		private void FrmMain_KeyDown(object sender, KeyEventArgs e)
-		{
-			Console.WriteLine(e.KeyCode);
-		}
 
 		//public void showPageLobby(Server server)
 		//{

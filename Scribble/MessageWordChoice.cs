@@ -23,22 +23,13 @@ namespace Scribble
 
 		private event EventHandler<WordChoosenEventArgs> WordChoosen;
 
-		//private static Dictionary<Control, bool> lastControlEnabledStates;
-
 		public static void Open(Control parent, WordChoice wordChoice, EventHandler<WordChoosenEventArgs> wordChoosen)
 		{
-			// TODO: disable only the page control
-			//lastControlEnabledStates = new Dictionary<Control, bool>();
-			//foreach (Control control in parent.Controls)
-			//{
-			//	lastControlEnabledStates.Add(control, control.Enabled);
-			//	control.Enabled = false;
-			//}
-
+			// disable the page control
 			foreach (Control control in parent.Controls)
 			{
 				if (control is Page)
-					control.Enabled = true;
+					control.Enabled = false;
 			}
 
 			var msg = new MessageWordChoice();
@@ -56,14 +47,12 @@ namespace Scribble
 
 		private static void Msg_Disposed(object sender, EventArgs e)
 		{
+			// enable the page control
 			foreach (Control control in (sender as Control).Controls)
 			{
 				if (control is Page)
 					control.Enabled = true;
 			}
-
-			//lastControlEnabledStates.Clear();
-			//lastControlEnabledStates = null;
 		}
 
 		public MessageWordChoice()

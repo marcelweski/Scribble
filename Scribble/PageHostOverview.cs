@@ -725,7 +725,7 @@ namespace Scribble
 
 			///////////////////////////////////////////////////////////////////////////////////////////////////////
 			// TODO: if only one player left in room => kick him
-			var nextDrawer = drawerCandidates.First(); // TODO: make this random
+			var nextDrawer = drawerCandidates.Pick();
 
 			roomInfo.Drawer = (nextDrawer.UserData as ClientUserData).PlayerName;
 			(nextDrawer.UserData as ClientUserData).IsDrawing = true;
@@ -799,7 +799,7 @@ namespace Scribble
 				var playersInGame = this.getPlayersInGame(roomInfo);
 
 				///////////////////////////////////////////////////////////////////////////////////////////////////////
-				var nextDrawer = drawerCandidates.First(); // TODO: make this random
+				var nextDrawer = drawerCandidates.Pick();
 
 				roomInfo.Drawer = (nextDrawer.UserData as ClientUserData).PlayerName;
 				(nextDrawer.UserData as ClientUserData).IsDrawing = true;

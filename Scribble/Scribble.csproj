@@ -106,6 +106,7 @@
     <Compile Include="DarkTheme\Form.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageWordChoice.cs" />
     <Compile Include="Packets.cs" />

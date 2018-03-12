@@ -16,363 +16,23 @@ namespace Scribble
 		private DarkTheme.Button btnKickPlayer;
 		private DarkTheme.Button btnChangeName;
 
-		//private AdvancedNetworkLib.Server Server { get => (this.FindForm() as FrmMain).Server; }
-		//private AdvancedNetworkLib.Client Client { get => (this.FindForm() as FrmMain).Client; }
-
-		//private System.Drawing.Image image;
-
-
-		//
-		//private enum ERole
-		//{
-		//	Server,
-		//	Client
-		//}
-		//private ERole role;
-
-		//
-		//private LobbyList lobbyList;
-
-		//private class ClientUserData
-		//{
-		//	public string Name { get; set; }
-		//	public bool Ready;
-		//}
-
 		public bool Host = false;
-		//public string RoomName;
-		//public string PlayerName;
-
-		//private Random rand;
-		//
-
-		// General (used by server and client, any player)
-		//
 
 		public PageLobby()
 		{
 			this.InitializeComponent();
 
+			// TODO: show room name
+
 			this.Load += PageLobby_Load;
 			this.Closed += PageLobby_Closed;
-
-
-
-			//this.btnReady.Click += BtnReady_Click;
-
-			//
-			//this.lobbyList = new LobbyList();
-
-			//this.rand = new Random((int)DateTime.Now.Ticks);
-			////
 
 			var imagelist = new System.Windows.Forms.ImageList();
 			imagelist.ImageSize = new System.Drawing.Size(64, 64);
 			imagelist.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
 			imagelist.Images.Add(Properties.Resources.user_small_white);
 			this.lvwPlayers.LargeImageList = imagelist;
-
 			this.lvwPlayers.ItemSelectionChanged += LvwPlayers_ItemSelectionChanged;
-		}
-
-		private void LvwPlayers_ItemSelectionChanged(object sender, System.Windows.Forms.ListViewItemSelectionChangedEventArgs e)
-		{
-			if (this.Host)
-			{
-				this.btnKickPlayer.Enabled = e.IsSelected && e.ItemIndex != 0;
-			}
-			else
-			{
-				e.Item.Selected = false;
-			}
-		}
-
-		private void PageLobby_Load(object sender, EventArgs e)
-		{
-			Client.ErrorOccurred += Client_ErrorOccurred;
-			Client.ConnectionChanged += Client_ConnectionChanged;
-			Client.ObjectReceived += Client_ObjectReceived;
-
-			Client.send(new ChangeState { State = this.Host ? State.LobbyReady : State.Lobby });
-
-			this.btnKickPlayer.Visible = this.Host;
-			this.btnChangeName.Visible = this.Host;
-			this.btnReady.Text = this.Host ? "Starten" : "Bereit";
-
-			//if (this.Server.Listening)
-			//{
-			//	this.role = ERole.Server;
-			//	this.playerName = "Server";
-
-			//	this.txtName.Text = this.playerName;
-
-			//	this.updateLobbyList();
-			//	this.Server.ClientsChanged += Server_ClientsChanged;
-			//	this.Server.ObjectReceived += Server_ObjectReceived;
-			//}
-			//else
-			//{
-			//	this.role = ERole.Client;
-
-			//	this.Client.ObjectReceived += Client_ObjectReceived;
-			//}
-		}
-
-		private void Client_ErrorOccurred(object sender, AdvancedNetworkLib.ErrorOccurredEventArgs e)
-		{
-		}
-
-		private void Client_ConnectionChanged(object sender, AdvancedNetworkLib.ConnectionChangedEventArgs e)
-		{
-			if (!e.Connected)
-			{
-				this.Parent.closeCurrentPage();
-				MessageBox.Show("Der Server ist nicht mehr erreichbar!");
-			}
-		}
-
-		private void Client_ObjectReceived(object sender, AdvancedNetworkLib.ObjectReceivedEventArgs e)
-		{
-			//if (obj is LobbyList)
-			//{
-			//	this.updateLobbyListControl(obj as LobbyList);
-			//}
-			//else if (obj is ErrorOld)
-			//{
-			//	var error = obj as ErrorOld;
-			//	if (error.Job == EJob.PlayerNameChange)
-			//	{
-			//		this.btnReady.Enabled = true;
-			//		this.txtName.Enabled = true;
-			//		MessageBox.Show("Der Name ist leider schon vergeben!");
-			//	}
-			//}
-			//else if (obj is SuccessOld)
-			//{
-			//	var job = (obj as SuccessOld).Job;
-			//	if (job == EJob.PlayerNameChange)
-			//	{
-			//		if (this.Host)
-			//		{
-			//			//this.Parent.closeCurrentPageAndOpenNewPage(new PageGame());
-			//			Client.send(new ChangeStateGame());
-			//		}
-			//	}
-			//}
-			var obj = e.Object;
-			if (obj is RandomPlayerName)
-			{
-				this.txtName.Text = (obj as RandomPlayerName).Name;
-			}
-			else if (obj is LobbyList)
-			{
-				LobbyList lobbyList = obj as LobbyList;
-				this.updateLobbyListControl(lobbyList);
-			}
-			else if (obj is Success)
-			{
-				var success = obj as Success;
-				if (success.Job == Job.NameChange)
-				{
-					if (this.Host)
-					{
-						this.btnChangeName.Text = "Namen ändern";
-						this.btnChangeName.Enabled = true;
-					}
-					else
-					{
-						this.btnReady.Text = "Bereit";
-					}
-				}
-				else if (success.Job == Job.GameStart)
-				{
-					Client.ConnectionChanged -= Client_ConnectionChanged;
-					Client.ErrorOccurred -= Client_ErrorOccurred;
-					Client.ObjectReceived -= Client_ObjectReceived;
-
-					this.Parent.closeCurrentPageAndOpenNewPage(new PageGame(new ClientUserData { Host = true, PlayerName = this.txtName.Text }));
-				}
-
-			}
-			else if (obj is Error)
-			{
-				var error = obj as Error;
-				if (error.Job == Job.NameChange)
-				{
-					MessageBox.Show("Dieser Name ist bereits vergeben!");
-
-					if (this.Host)
-					{
-						this.btnChangeName.Text = "Namen ändern";
-						this.btnChangeName.Enabled = true;
-					}
-					else
-					{
-						this.btnReady.Text = "Bereit";
-						this.btnReady.Enabled = true;
-					}
-				}
-				else if (error.Job == Job.GameStart)
-				{
-					if (this.lvwPlayers.Items.Count == 1)
-					{
-						MessageBox.Show("Du kannst nicht aleine spielen!");
-					}
-					else
-					{
-						MessageBox.Show("Es sind noch nicht alle Spieler bereit!");
-					}
-
-					this.btnReady.Text = "Starten";
-					this.btnReady.Enabled = true;
-				}
-			}
-			else if (obj is StartGame)
-			{
-				Client.ConnectionChanged -= Client_ConnectionChanged;
-				Client.ErrorOccurred -= Client_ErrorOccurred;
-				Client.ObjectReceived -= Client_ObjectReceived;
-
-				this.Parent.closeCurrentPageAndOpenNewPage(new PageGame(new ClientUserData { Host = false, PlayerName = this.txtName.Text }));
-			}
-		}
-
-		
-
-		//private void Server_ObjectReceived(AdvancedNetworkLib.Client client, object obj)
-		//{
-		//	if (obj is PlayerName)
-		//	{
-		//		// check if name is free
-		//		string newPlayerName = (obj as PlayerName).Data;
-		//		string oldPlayerName = (client.UserData as ClientUserData).Name;
-
-		//		List<string> playerNames = new List<string>(this.lobbyList.Names.Keys);
-		//		playerNames.Remove(oldPlayerName);
-
-		//		if (playerNames.Contains(newPlayerName))
-		//		{
-		//			client.send(new Error { Job = EJob.PlayerNameChange });
-		//		}
-		//		else
-		//		{
-		//			client.send(new Success { Job = EJob.PlayerNameChange });
-
-		//			(client.UserData as ClientUserData).Name = newPlayerName;
-		//			(client.UserData as ClientUserData).Ready = true;
-		//			this.updateLobbyList();
-		//			this.Server.sendToAll(this.lobbyList);
-		//		}
-		//	}
-		//}
-
-		//private void Client_ObjectReceived(AdvancedNetworkLib.Client client, object obj)
-		//{
-		//	if (obj is PlayerName)
-		//	{
-		//		this.playerName = this.txtName.Text = (obj as PlayerName).Data;
-		//	}
-		//	else if (obj is LobbyList)
-		//	{
-		//		this.updateLobbyListControl((obj as LobbyList));
-		//	}
-		//	else if (obj is Success)
-		//	{
-		//		var job = (obj as Success).Job;
-		//		if (job == EJob.PlayerNameChange)
-		//		{
-		//			this.btnReady.Enabled = false;
-		//		}
-		//	}
-		//	else if (obj is Error)
-		//	{
-		//		var job = (obj as Error).Job;
-		//		if (job == EJob.PlayerNameChange)
-		//		{
-		//			this.btnReady.Enabled = true;
-		//			this.txtName.Enabled = true;
-		//			MessageBox.Show("Dieser Name ist bereits vergeben!");
-		//		}
-		//	}
-		//	else if (obj is StartGame)
-		//	{
-		//		StartGame game = (obj as StartGame);
-		//		this.Client.ObjectReceived -= this.Client_ObjectReceived;
-		//		(this.Parent as FrmMain).openPage(new PageGame { PlayerName = this.playerName });
-		//	}
-		//}
-
-		//private void updateLobbyList()
-		//{
-		//	this.lobbyList.Names.Clear();
-
-		//	if (this.role == ERole.Server)
-		//		this.lobbyList.Names.Add(this.playerName, true);
-
-		//	foreach (var client in this.Server.Clients)
-		//	{
-		//		this.lobbyList.Names.Add((client.UserData as ClientUserData).Name, (client.UserData as ClientUserData).Ready);
-		//	}
-
-		//	// update control
-		//	this.updateLobbyListControl(this.lobbyList);
-		//}
-
-		private void updateLobbyListControl(LobbyList lobbyList)
-		{
-			this.lvwPlayers.Items.Clear();
-			foreach (var i in lobbyList.Items)
-			{
-				var tileSize = this.lvwPlayers.TileSize;
-
-				var item = new ListViewItem(i.PlayerName, 0);
-				if (i.State == State.LobbyReady)
-				{
-					item.Font = new System.Drawing.Font("Consolas", 10.0f, System.Drawing.FontStyle.Underline);
-				}
-				else if (i.State == State.Game)
-				{
-					item.Font = new System.Drawing.Font("Consolas", 10.0f, System.Drawing.FontStyle.Underline);
-					item.ForeColor = System.Drawing.Color.LightBlue;
-				}
-				//item.Position = new System.Drawing.Point((this.lvwPlayers.Width/2) - (tileSize.Width/2), (this.lvwPlayers.Height / 2) - (tileSize.Height / 2));
-				//item.Position = new System.Drawing.Point(100, 100);
-				this.lvwPlayers.Items.Add(item);
-			}
-		}
-
-		//private void Server_ClientsChanged(object sender)
-		//{
-		//	this.lvwPlayers.Items.Clear();
-
-		//	// update new client userdata
-		//	foreach (var client in this.Server.Clients)
-		//	{
-		//		if (client.UserData == null)
-		//		{
-		//			// give new client a random name
-		//			ClientUserData userData = new ClientUserData();
-		//			userData.Ready = false;
-		//			while (this.lobbyList.Names.ContainsKey(userData.Name = $"Player{this.rand.Next(0, 999).ToString().PadLeft(3, '0')}")) { }
-
-		//			client.UserData = userData;
-		//			client.send(new PlayerName { Data = userData.Name });
-		//		}
-		//	}
-
-		//	// update lobbylist
-		//	this.updateLobbyList();
-
-		//	this.Server.sendToAll(this.lobbyList);
-
-		//}
-
-		private void PageLobby_Closed(object sender, EventArgs e)
-		{
-			//Console.WriteLine("Closing lobby...");
-			//this.Server?.stop();
-			//this.Client?.disconnect();
-			//Client.disconnect();
 		}
 
 		private void InitializeComponent()
@@ -387,9 +47,9 @@ namespace Scribble
 			// 
 			// lvwPlayers
 			// 
-			this.lvwPlayers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.lvwPlayers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.lvwPlayers.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
 			this.lvwPlayers.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.lvwPlayers.Font = new System.Drawing.Font("Consolas", 9F);
@@ -489,114 +149,125 @@ namespace Scribble
 			this.Controls.Add(this.lvwPlayers);
 			this.Location = new System.Drawing.Point(0, 0);
 			this.Name = "PageLobby";
-			this.VisibleChanged += new System.EventHandler(this.PageLobby_VisibleChanged);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
 		}
 
-		//private bool checkIfEverybodyIsReady()
-		//{
-		//	foreach (var c in this.Server.Clients)
-		//	{
-		//		if (c.UserData != null && !(c.UserData as ClientUserData).Ready)
-		//			return false;
-		//	}
-		//	return true;
-		//}
-
-		private void BtnReady_Clickasdsasda(object sender, EventArgs e)
+		// Page Events
+		private void PageLobby_Load(object sender, EventArgs e)
 		{
-			//Client.send(new ChangeStateLobbyReady());
-			//if (this.role == ERole.Server)
-			//{
-			//	// sending name request to server
-			//	string name = this.txtName.Text;
+			Client.ErrorOccurred += Client_ErrorOccurred;
+			Client.ConnectionChanged += Client_ConnectionChanged;
+			Client.ObjectReceived += Client_ObjectReceived;
 
-			//	// check if name is valid
-			//	if (name.Length == 0)
-			//	{
-			//		MessageBox.Show("Bitte einen Namen angeben!");
-			//	}
-			//	else
-			//	{
-			//		string oldPlayerName = this.playerName;
+			Client.send(new ChangeState { State = this.Host ? State.LobbyReady : State.Lobby });
 
-			//		List<string> playerNames = new List<string>(this.lobbyList.Names.Keys);
-			//		playerNames.Remove(oldPlayerName);
-
-			//		if (playerNames.Contains(name))
-			//		{
-			//			MessageBox.Show("Dieser Name ist leider schon vergeben!");
-			//		}
-			//		else
-			//		{
-			//			this.playerName = name;
-			//			this.updateLobbyList();
-			//			this.Server.sendToAll(this.lobbyList);
-
-			//			// check if every player is ready
-			//			if (!this.checkIfEverybodyIsReady())
-			//			{
-			//				MessageBox.Show("Es sind noch nicht alle Spieler bereit!");
-			//			}
-			//			else
-			//			{
-			//				// start game
-			//				this.Server.sendToAll(new StartGame());
-			//				(this.Parent as FrmMain).openPage(new PageGame { PlayerName = this.playerName });
-
-			//				this.Server.ObjectReceived -= this.Server_ObjectReceived;
-			//				this.Server.ClientsChanged -= this.Server_ClientsChanged;
-			//			}
-			//		}
-			//	}
-			//}
-			//else
-			//{
-			//	// sending name request to server
-			//	string name = this.txtName.Text;
-
-			//	// check if name is valid
-			//	if (name.Length == 0)
-			//	{
-			//		MessageBox.Show("Bitte einen Namen angeben!");
-			//	}
-			//	else
-			//	{
-			//		this.btnReady.Enabled = false;
-			//		this.txtName.Enabled = false;
-			//		Client.send(new PlayerName { Data = name });
-			//	}
-			//}
-
+			this.btnKickPlayer.Visible = this.Host;
+			this.btnChangeName.Visible = this.Host;
+			this.btnReady.Text = this.Host ? "Starten" : "Bereit";
+		}
+		private void PageLobby_Closed(object sender, EventArgs e)
+		{
+			Client.ConnectionChanged -= Client_ConnectionChanged;
+			Client.ErrorOccurred -= Client_ErrorOccurred;
+			Client.ObjectReceived -= Client_ObjectReceived;
 		}
 
-		private void Server_ObjectReceived1(AdvancedNetworkLib.Client client, object obj)
+		// Client Events
+		private void Client_ErrorOccurred(object sender, AdvancedNetworkLib.ErrorOccurredEventArgs e)
 		{
-			//Console.WriteLine("BUMM BUMM");
+		}
+		private void Client_ConnectionChanged(object sender, AdvancedNetworkLib.ConnectionChangedEventArgs e)
+		{
+			if (!e.Connected)
+			{
+				this.Parent.closeCurrentPage();
+				MessageBox.Show("Der Server ist nicht mehr erreichbar!");
+			}
+		}
+		private void Client_ObjectReceived(object sender, AdvancedNetworkLib.ObjectReceivedEventArgs e)
+		{
+			var obj = e.Object;
+
+			if (obj is RandomPlayerName)
+			{
+				this.txtName.Text = (obj as RandomPlayerName).Name;
+			}
+			else if (obj is LobbyList)
+			{
+				LobbyList lobbyList = obj as LobbyList;
+				this.updateLobbyListControl(lobbyList);
+			}
+			else if (obj is Success)
+			{
+				var success = obj as Success;
+				if (success.Job == Job.NameChange)
+				{
+					if (this.Host)
+					{
+						this.btnChangeName.Text = "Namen ändern";
+						this.btnChangeName.Enabled = true;
+					}
+					else
+					{
+						this.btnReady.Text = "Bereit";
+					}
+				}
+				else if (success.Job == Job.GameStart)
+				{
+					Client.ConnectionChanged -= Client_ConnectionChanged;
+					Client.ErrorOccurred -= Client_ErrorOccurred;
+					Client.ObjectReceived -= Client_ObjectReceived;
+
+					this.Parent.closeCurrentPageAndOpenNewPage(new PageGame(new ClientUserData { Host = true, PlayerName = this.txtName.Text }));
+				}
+
+			}
+			else if (obj is Error)
+			{
+				var error = obj as Error;
+				if (error.Job == Job.NameChange)
+				{
+					MessageBox.Show("Dieser Name ist bereits vergeben!");
+
+					if (this.Host)
+					{
+						this.btnChangeName.Text = "Namen ändern";
+						this.btnChangeName.Enabled = true;
+					}
+					else
+					{
+						this.btnReady.Text = "Bereit";
+						this.btnReady.Enabled = true;
+					}
+				}
+				else if (error.Job == Job.GameStart)
+				{
+					if (this.lvwPlayers.Items.Count == 1)
+					{
+						MessageBox.Show("Du kannst nicht aleine spielen!");
+					}
+					else
+					{
+						MessageBox.Show("Es sind noch nicht alle Spieler bereit!");
+					}
+
+					this.btnReady.Text = "Starten";
+					this.btnReady.Enabled = true;
+				}
+			}
+			else if (obj is StartGame)
+			{
+				Client.ConnectionChanged -= Client_ConnectionChanged;
+				Client.ErrorOccurred -= Client_ErrorOccurred;
+				Client.ObjectReceived -= Client_ObjectReceived;
+
+				this.Parent.closeCurrentPageAndOpenNewPage(new PageGame(new ClientUserData { Host = false, PlayerName = this.txtName.Text }));
+			}
 		}
 
-		private void btnExit_Click(object sender, EventArgs e)
-		{
-
-		}
-
-		private void PageLobby_VisibleChanged(object sender, EventArgs e)
-		{
-			//if (this.Visible)
-			//{
-			//	this.Parent.closeCurrentPage();
-			//	//	this.Server?.stop();
-			//	//	this.Client?.disconnect();
-			//}
-			//else
-			//{
-			//	if (this.Server != null)
-			//		this.Server.ConnectionsChanged += Server_ConnectionsChanged;
-			//}
-		}
-
+		// Control Events
 		private void btnReady_Click(object sender, EventArgs e)
 		{
 			if (this.txtName.Text.Length == 0)
@@ -620,7 +291,6 @@ namespace Scribble
 				}
 			}
 		}
-
 		private void btnChangeName_Click(object sender, EventArgs e)
 		{
 			if (this.txtName.Text.Length == 0)
@@ -634,16 +304,40 @@ namespace Scribble
 				Client.send(new ChangeState { State = State.LobbyReady, Data = this.txtName.Text });
 			}
 		}
+		private void LvwPlayers_ItemSelectionChanged(object sender, System.Windows.Forms.ListViewItemSelectionChangedEventArgs e)
+		{
+			if (this.Host)
+			{
+				this.btnKickPlayer.Enabled = e.IsSelected && e.ItemIndex != 0;
+			}
+			else
+			{
+				e.Item.Selected = false;
+			}
+		}
 
+		// Private Methods
+		private void updateLobbyListControl(LobbyList lobbyList)
+		{
+			this.lvwPlayers.Items.Clear();
+			foreach (var i in lobbyList.Items)
+			{
+				var tileSize = this.lvwPlayers.TileSize;
 
-
-		//private void Server_ConnectionsChanged(List<Client> clients)
-		//{
-		//	this.listView1.Items.Clear();
-		//	foreach (var c in clients)
-		//	{
-		//		this.listView1.Items.Add(c.EndPoint.ToString());
-		//	}
-		//}
+				var item = new ListViewItem(i.PlayerName, 0);
+				if (i.State == State.LobbyReady)
+				{
+					item.Font = new System.Drawing.Font("Consolas", 10.0f, System.Drawing.FontStyle.Underline);
+				}
+				else if (i.State == State.Game)
+				{
+					item.Font = new System.Drawing.Font("Consolas", 10.0f, System.Drawing.FontStyle.Underline);
+					item.ForeColor = System.Drawing.Color.LightBlue;
+				}
+				//item.Position = new System.Drawing.Point((this.lvwPlayers.Width/2) - (tileSize.Width/2), (this.lvwPlayers.Height / 2) - (tileSize.Height / 2));
+				//item.Position = new System.Drawing.Point(100, 100);
+				this.lvwPlayers.Items.Add(item);
+			}
+		}
 	}
 }

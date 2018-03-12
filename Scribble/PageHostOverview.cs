@@ -305,7 +305,7 @@ namespace Scribble
 					if (oldState == State.Lobby || oldState == State.LobbyReady)
 					{
 						this.sendLobbyListToAll(roomInfo);
-						this.sendRoomListToAll();
+						//this.sendRoomListToAll();
 					}
 
 					// if player was in game
@@ -323,24 +323,26 @@ namespace Scribble
 							// update ranklist for players in game
 							this.sendRankListToAll(roomInfo);
 						}
-
-						// update overview
-						this.updateOverview();
 					}
 
-					if (userData.Host)
-					{
-						userData.Host = false;
+					userData.Host = false;
 
-						// update and send roomlist
-						this.sendRoomListToAll();
-					
-					}
-					else
-					{
-						// send roomlist
-						this.sendRoomList(client);
-					}
+					// update and send roomlist
+					this.sendRoomListToAll();
+
+					//if (userData.Host)
+					//{
+					//	userData.Host = false;
+
+					//	// update and send roomlist
+					//	this.sendRoomListToAll();
+
+					//}
+					//else
+					//{
+					//	// send roomlist
+					//	this.sendRoomList(client);
+					//}
 				}
 				else if (userData.State == State.RoomCreation)
 				{
@@ -356,7 +358,6 @@ namespace Scribble
 				}
 				else if (userData.State == State.LobbyReady || userData.State == State.Lobby)
 				{
-					// TODO: update roomlist
 					if (userData.PlayerName == string.Empty)
 					{
 						string randomPlayerName = string.Empty;
@@ -1006,6 +1007,18 @@ namespace Scribble
 
 		private RoomList getRoomList()
 		{
+			// remove empty rooms
+			this.rooms.RemoveAll(r =>
+			{
+				// check if there are players in the room
+				var totalPlayerCount = this.getPlayers(r).Count();
+				if (totalPlayerCount == 0)
+				{
+					r.RoundInfo.WordUpdateTimer?.Stop();
+				}
+				return totalPlayerCount == 0;
+			});
+
 			RoomList roomList = new RoomList();
 			foreach (var roomInfo in this.rooms)
 			{

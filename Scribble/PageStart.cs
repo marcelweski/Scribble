@@ -17,8 +17,6 @@ namespace Scribble
 		public PageStart()
 		{
 			InitializeComponent();
-
-			// TODO: copyright
 		}
 
 		private void InitializeComponent()

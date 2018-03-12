@@ -115,6 +115,7 @@ namespace Scribble
 	[Serializable]
 	public class LobbyList
 	{
+		public string RoomName { get; set; }
 		public List<LobbyListItem> Items { get; set; }
 
 		public LobbyList()

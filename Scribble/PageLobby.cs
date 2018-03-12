@@ -15,21 +15,19 @@ namespace Scribble
 		private System.Windows.Forms.ListView lvwPlayers;
 		private DarkTheme.Button btnKickPlayer;
 		private DarkTheme.Button btnChangeName;
-
+		private DarkTheme.Label lblRoomName;
 		public bool Host = false;
 
 		public PageLobby()
 		{
 			this.InitializeComponent();
 
-			// TODO: show room name
-
 			this.Load += PageLobby_Load;
 			this.Closed += PageLobby_Closed;
 
-			var imagelist = new System.Windows.Forms.ImageList();
+			var imagelist = new ImageList();
 			imagelist.ImageSize = new System.Drawing.Size(64, 64);
-			imagelist.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+			imagelist.ColorDepth = ColorDepth.Depth32Bit;
 			imagelist.Images.Add(Properties.Resources.user_small_white);
 			this.lvwPlayers.LargeImageList = imagelist;
 			this.lvwPlayers.ItemSelectionChanged += LvwPlayers_ItemSelectionChanged;
@@ -43,32 +41,33 @@ namespace Scribble
 			this.btnReady = new DarkTheme.Button();
 			this.btnKickPlayer = new DarkTheme.Button();
 			this.btnChangeName = new DarkTheme.Button();
+			this.lblRoomName = new DarkTheme.Label();
 			this.SuspendLayout();
 			// 
 			// lvwPlayers
 			// 
-			this.lvwPlayers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.lvwPlayers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.lvwPlayers.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(32)))), ((int)(((byte)(32)))));
 			this.lvwPlayers.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.lvwPlayers.Font = new System.Drawing.Font("Consolas", 9F);
 			this.lvwPlayers.ForeColor = System.Drawing.Color.White;
-			this.lvwPlayers.Location = new System.Drawing.Point(140, 58);
+			this.lvwPlayers.Location = new System.Drawing.Point(68, 107);
 			this.lvwPlayers.MultiSelect = false;
 			this.lvwPlayers.Name = "lvwPlayers";
-			this.lvwPlayers.Size = new System.Drawing.Size(820, 274);
+			this.lvwPlayers.Size = new System.Drawing.Size(960, 274);
 			this.lvwPlayers.TabIndex = 1;
 			this.lvwPlayers.UseCompatibleStateImageBehavior = false;
 			// 
 			// lblName
 			// 
-			this.lblName.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.lblName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.lblName.AutoSize = true;
 			this.lblName.BackColor = System.Drawing.Color.Transparent;
 			this.lblName.Font = new System.Drawing.Font("Consolas", 12F);
 			this.lblName.ForeColor = System.Drawing.Color.White;
-			this.lblName.Location = new System.Drawing.Point(443, 384);
+			this.lblName.Location = new System.Drawing.Point(64, 384);
 			this.lblName.Name = "lblName";
 			this.lblName.Size = new System.Drawing.Size(45, 19);
 			this.lblName.TabIndex = 2;
@@ -76,9 +75,9 @@ namespace Scribble
 			// 
 			// txtName
 			// 
-			this.txtName.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.txtName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.txtName.BackColor = System.Drawing.Color.White;
-			this.txtName.Location = new System.Drawing.Point(447, 406);
+			this.txtName.Location = new System.Drawing.Point(68, 406);
 			this.txtName.Name = "txtName";
 			this.txtName.ReadOnly = false;
 			this.txtName.Size = new System.Drawing.Size(200, 29);
@@ -86,7 +85,7 @@ namespace Scribble
 			// 
 			// btnReady
 			// 
-			this.btnReady.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.btnReady.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.btnReady.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
 			this.btnReady.FlatAppearance.BorderSize = 0;
 			this.btnReady.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
@@ -94,7 +93,7 @@ namespace Scribble
 			this.btnReady.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnReady.Font = new System.Drawing.Font("Consolas", 12F);
 			this.btnReady.ForeColor = System.Drawing.Color.White;
-			this.btnReady.Location = new System.Drawing.Point(447, 441);
+			this.btnReady.Location = new System.Drawing.Point(68, 441);
 			this.btnReady.Name = "btnReady";
 			this.btnReady.Size = new System.Drawing.Size(200, 50);
 			this.btnReady.TabIndex = 4;
@@ -104,7 +103,7 @@ namespace Scribble
 			// 
 			// btnKickPlayer
 			// 
-			this.btnKickPlayer.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.btnKickPlayer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnKickPlayer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
 			this.btnKickPlayer.Enabled = false;
 			this.btnKickPlayer.FlatAppearance.BorderSize = 0;
@@ -113,7 +112,7 @@ namespace Scribble
 			this.btnKickPlayer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnKickPlayer.Font = new System.Drawing.Font("Consolas", 12F);
 			this.btnKickPlayer.ForeColor = System.Drawing.Color.White;
-			this.btnKickPlayer.Location = new System.Drawing.Point(653, 441);
+			this.btnKickPlayer.Location = new System.Drawing.Point(828, 396);
 			this.btnKickPlayer.Name = "btnKickPlayer";
 			this.btnKickPlayer.Size = new System.Drawing.Size(200, 50);
 			this.btnKickPlayer.TabIndex = 5;
@@ -122,7 +121,7 @@ namespace Scribble
 			// 
 			// btnChangeName
 			// 
-			this.btnChangeName.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.btnChangeName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.btnChangeName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
 			this.btnChangeName.FlatAppearance.BorderSize = 0;
 			this.btnChangeName.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(160)))), ((int)(((byte)(255)))));
@@ -130,7 +129,7 @@ namespace Scribble
 			this.btnChangeName.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.btnChangeName.Font = new System.Drawing.Font("Consolas", 12F);
 			this.btnChangeName.ForeColor = System.Drawing.Color.White;
-			this.btnChangeName.Location = new System.Drawing.Point(241, 441);
+			this.btnChangeName.Location = new System.Drawing.Point(274, 441);
 			this.btnChangeName.Name = "btnChangeName";
 			this.btnChangeName.Size = new System.Drawing.Size(200, 50);
 			this.btnChangeName.TabIndex = 6;
@@ -138,9 +137,22 @@ namespace Scribble
 			this.btnChangeName.UseVisualStyleBackColor = false;
 			this.btnChangeName.Click += new System.EventHandler(this.btnChangeName_Click);
 			// 
+			// lblRoomName
+			// 
+			this.lblRoomName.AutoSize = true;
+			this.lblRoomName.BackColor = System.Drawing.Color.Transparent;
+			this.lblRoomName.Font = new System.Drawing.Font("Segoe UI Semilight", 24F);
+			this.lblRoomName.ForeColor = System.Drawing.Color.White;
+			this.lblRoomName.Location = new System.Drawing.Point(60, 60);
+			this.lblRoomName.Name = "lblRoomName";
+			this.lblRoomName.Size = new System.Drawing.Size(176, 45);
+			this.lblRoomName.TabIndex = 7;
+			this.lblRoomName.Text = "Raumname";
+			// 
 			// PageLobby
 			// 
 			this.BackColor = System.Drawing.Color.Transparent;
+			this.Controls.Add(this.lblRoomName);
 			this.Controls.Add(this.btnChangeName);
 			this.Controls.Add(this.btnKickPlayer);
 			this.Controls.Add(this.btnReady);
@@ -177,6 +189,7 @@ namespace Scribble
 		// Client Events
 		private void Client_ErrorOccurred(object sender, AdvancedNetworkLib.ErrorOccurredEventArgs e)
 		{
+			MessageBox.Show(e.Exception.StackTrace+"\n"+e.Exception.Message);
 		}
 		private void Client_ConnectionChanged(object sender, AdvancedNetworkLib.ConnectionChangedEventArgs e)
 		{
@@ -222,7 +235,6 @@ namespace Scribble
 
 					this.Parent.closeCurrentPageAndOpenNewPage(new PageGame(new ClientUserData { Host = true, PlayerName = this.txtName.Text }));
 				}
-
 			}
 			else if (obj is Error)
 			{
@@ -246,7 +258,7 @@ namespace Scribble
 				{
 					if (this.lvwPlayers.Items.Count == 1)
 					{
-						MessageBox.Show("Du kannst nicht aleine spielen!");
+						MessageBox.Show("Du kannst nicht alleine spielen!");
 					}
 					else
 					{
@@ -319,6 +331,9 @@ namespace Scribble
 		// Private Methods
 		private void updateLobbyListControl(LobbyList lobbyList)
 		{
+			// update room name
+			this.lblRoomName.Text = lobbyList.RoomName;
+
 			this.lvwPlayers.Items.Clear();
 			foreach (var i in lobbyList.Items)
 			{

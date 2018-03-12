@@ -985,6 +985,7 @@ namespace Scribble
 			var players = this.getPlayersInLobbyAndGame(roomInfo);
 
 			LobbyList lobbyList = new LobbyList();
+			lobbyList.RoomName = roomInfo.Name;
 			foreach (var player in players)
 			{
 				var u = player.UserData as ClientUserData;

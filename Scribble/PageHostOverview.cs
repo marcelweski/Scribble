@@ -17,9 +17,9 @@ namespace Scribble
 		private ColumnHeader colPlayersInGame;
 		private DarkTheme.Label lblInfo;
 		private DarkTheme.Label lblClientCount;
-		private DarkTheme.Label lblPlayerLobbyCount;
-		private DarkTheme.Label lblPlayerGameCount;
-		private DarkTheme.Label lblHostCount;
+		private DarkTheme.Label lblPlayerInLobbyCount;
+		private DarkTheme.Label lblPlayerInGameCount;
+		private DarkTheme.Label lblRoomCount;
 		private DarkTheme.Label lblTitle;
 
 		private int roundDuration = 60; // in seconds
@@ -57,12 +57,12 @@ namespace Scribble
 			this.colRoomName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colPlayersInLobby = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colPlayersInGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colSpieler = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.lblInfo = new DarkTheme.Label();
 			this.lblClientCount = new DarkTheme.Label();
-			this.lblPlayerLobbyCount = new DarkTheme.Label();
-			this.lblPlayerGameCount = new DarkTheme.Label();
-			this.lblHostCount = new DarkTheme.Label();
-			this.colSpieler = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.lblPlayerInLobbyCount = new DarkTheme.Label();
+			this.lblPlayerInGameCount = new DarkTheme.Label();
+			this.lblRoomCount = new DarkTheme.Label();
 			this.SuspendLayout();
 			// 
 			// lblTitle
@@ -126,6 +126,11 @@ namespace Scribble
 			this.colPlayersInGame.Text = "Spieler im Spiel";
 			this.colPlayersInGame.Width = 85;
 			// 
+			// colSpieler
+			// 
+			this.colSpieler.Text = "Spieler";
+			this.colSpieler.Width = 50;
+			// 
 			// lblInfo
 			// 
 			this.lblInfo.AutoSize = true;
@@ -150,52 +155,47 @@ namespace Scribble
 			this.lblClientCount.TabIndex = 5;
 			this.lblClientCount.Text = "Verbundene Clients: 0";
 			// 
-			// lblPlayerLobbyCount
+			// lblPlayerInLobbyCount
 			// 
-			this.lblPlayerLobbyCount.AutoSize = true;
-			this.lblPlayerLobbyCount.BackColor = System.Drawing.Color.Transparent;
-			this.lblPlayerLobbyCount.Font = new System.Drawing.Font("Segoe UI", 12F);
-			this.lblPlayerLobbyCount.ForeColor = System.Drawing.Color.White;
-			this.lblPlayerLobbyCount.Location = new System.Drawing.Point(490, 173);
-			this.lblPlayerLobbyCount.Name = "lblPlayerLobbyCount";
-			this.lblPlayerLobbyCount.Size = new System.Drawing.Size(138, 21);
-			this.lblPlayerLobbyCount.TabIndex = 6;
-			this.lblPlayerLobbyCount.Text = "Spieler in Lobby: 0";
+			this.lblPlayerInLobbyCount.AutoSize = true;
+			this.lblPlayerInLobbyCount.BackColor = System.Drawing.Color.Transparent;
+			this.lblPlayerInLobbyCount.Font = new System.Drawing.Font("Segoe UI", 12F);
+			this.lblPlayerInLobbyCount.ForeColor = System.Drawing.Color.White;
+			this.lblPlayerInLobbyCount.Location = new System.Drawing.Point(490, 173);
+			this.lblPlayerInLobbyCount.Name = "lblPlayerInLobbyCount";
+			this.lblPlayerInLobbyCount.Size = new System.Drawing.Size(149, 21);
+			this.lblPlayerInLobbyCount.TabIndex = 6;
+			this.lblPlayerInLobbyCount.Text = "Spieler in Lobbies: 0";
 			// 
-			// lblPlayerGameCount
+			// lblPlayerInGameCount
 			// 
-			this.lblPlayerGameCount.AutoSize = true;
-			this.lblPlayerGameCount.BackColor = System.Drawing.Color.Transparent;
-			this.lblPlayerGameCount.Font = new System.Drawing.Font("Segoe UI", 12F);
-			this.lblPlayerGameCount.ForeColor = System.Drawing.Color.White;
-			this.lblPlayerGameCount.Location = new System.Drawing.Point(490, 208);
-			this.lblPlayerGameCount.Name = "lblPlayerGameCount";
-			this.lblPlayerGameCount.Size = new System.Drawing.Size(134, 21);
-			this.lblPlayerGameCount.TabIndex = 7;
-			this.lblPlayerGameCount.Text = "Spieler im Spiel: 0";
+			this.lblPlayerInGameCount.AutoSize = true;
+			this.lblPlayerInGameCount.BackColor = System.Drawing.Color.Transparent;
+			this.lblPlayerInGameCount.Font = new System.Drawing.Font("Segoe UI", 12F);
+			this.lblPlayerInGameCount.ForeColor = System.Drawing.Color.White;
+			this.lblPlayerInGameCount.Location = new System.Drawing.Point(490, 208);
+			this.lblPlayerInGameCount.Name = "lblPlayerInGameCount";
+			this.lblPlayerInGameCount.Size = new System.Drawing.Size(146, 21);
+			this.lblPlayerInGameCount.TabIndex = 7;
+			this.lblPlayerInGameCount.Text = "Spieler in Spielen: 0";
 			// 
-			// lblHostCount
+			// lblRoomCount
 			// 
-			this.lblHostCount.AutoSize = true;
-			this.lblHostCount.BackColor = System.Drawing.Color.Transparent;
-			this.lblHostCount.Font = new System.Drawing.Font("Segoe UI", 12F);
-			this.lblHostCount.ForeColor = System.Drawing.Color.White;
-			this.lblHostCount.Location = new System.Drawing.Point(490, 243);
-			this.lblHostCount.Name = "lblHostCount";
-			this.lblHostCount.Size = new System.Drawing.Size(65, 21);
-			this.lblHostCount.TabIndex = 8;
-			this.lblHostCount.Text = "Hosts: 0";
-			// 
-			// colSpieler
-			// 
-			this.colSpieler.Text = "Spieler";
-			this.colSpieler.Width = 50;
+			this.lblRoomCount.AutoSize = true;
+			this.lblRoomCount.BackColor = System.Drawing.Color.Transparent;
+			this.lblRoomCount.Font = new System.Drawing.Font("Segoe UI", 12F);
+			this.lblRoomCount.ForeColor = System.Drawing.Color.White;
+			this.lblRoomCount.Location = new System.Drawing.Point(490, 243);
+			this.lblRoomCount.Name = "lblRoomCount";
+			this.lblRoomCount.Size = new System.Drawing.Size(75, 21);
+			this.lblRoomCount.TabIndex = 8;
+			this.lblRoomCount.Text = "Räume: 0";
 			// 
 			// PageHostOverview
 			// 
-			this.Controls.Add(this.lblHostCount);
-			this.Controls.Add(this.lblPlayerGameCount);
-			this.Controls.Add(this.lblPlayerLobbyCount);
+			this.Controls.Add(this.lblRoomCount);
+			this.Controls.Add(this.lblPlayerInGameCount);
+			this.Controls.Add(this.lblPlayerInLobbyCount);
 			this.Controls.Add(this.lblClientCount);
 			this.Controls.Add(this.lblInfo);
 			this.Controls.Add(this.lvwRooms);
@@ -237,28 +237,48 @@ namespace Scribble
 		}
 		private void Server_ClientsChanged(object sender, AdvancedNetworkLib.ClientsChangedEventArgs e)
 		{
-			this.lblClientCount.Text = $"Verbundene Clients: {e.Clients.Count()}";
+			// TODO: kick last player in game
 
-			// TODO: if host leaves room, set new host
-
-			// update roominfos
 			lock (this.rooms)
 			{
+				// update roominfos
 				this.sendRoomListToAll();
-			}
 
-			// update and send lobbylists
-			lock (this.rooms)
-			{
+				// check if rooms still have a host
+				foreach (var roomInfo in this.rooms)
+				{
+					var playersInGame = this.getPlayersInGame(roomInfo);
+					var hostFound = playersInGame.Any(p => (p.UserData as ClientUserData).Host);
+					if (!hostFound)
+					{
+						// nominate new host
+						(playersInGame.First().UserData as ClientUserData).Host = true;
+						roomInfo.Drawer = (playersInGame.First().UserData as ClientUserData).PlayerName;
+						this.sendRankListToAll(roomInfo);
+					}
+				}
+
+				// check if rooms still have a drawer
+				foreach (var roomInfo in this.rooms)
+				{
+					var drawerFound = this.getPlayersInGame(roomInfo).Any(p => (p.UserData as ClientUserData).IsDrawing);
+					if (!drawerFound)
+					{
+						// choose new drawer
+						this.nextDrawer(roomInfo);
+					}
+				}
+
+				// update and send lobbylists
 				foreach (var roomInfo in this.rooms)
 					this.sendLobbyListToAll(roomInfo);
-			}
 
-			// update all ranklists
-			lock (this.rooms)
-			{
+				// update all ranklists
 				foreach (var roomInfo in this.rooms)
 					this.sendRankListToAll(roomInfo);
+
+				// Update count labels
+				this.updateCountLabels();
 			}
 		}
 		private void Server_ObjectReceived(object sender, AdvancedNetworkLib.ObjectReceivedEventArgs e)
@@ -456,6 +476,8 @@ namespace Scribble
 
 					this.sendRoomListToAll();
 				}
+
+				this.updateCountLabels();
 			}
 			else if (obj is CreateRoom)
 			{
@@ -1105,6 +1127,14 @@ namespace Scribble
 				availableWords.Remove(randomWord);
 			}
 			player.send(wordChoice);
+		}
+
+		private void updateCountLabels()
+		{
+			this.lblClientCount.Text = $"Verbundene Clients: {Server.Clients.Count()}";
+			this.lblPlayerInLobbyCount.Text = $"Spieler in Lobbies: {Server.Clients.Count(c => (c.UserData as ClientUserData)?.State == State.Lobby || (c.UserData as ClientUserData)?.State == State.LobbyReady)}";
+			this.lblPlayerInGameCount.Text = $"Spieler in Spielen: {Server.Clients.Count(c => (c.UserData as ClientUserData)?.State == State.Game)}";
+			this.lblRoomCount.Text = $"Räume: {this.rooms.Count}";
 		}
 	}
 }

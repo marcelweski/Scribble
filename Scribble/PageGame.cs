@@ -38,13 +38,12 @@ namespace Scribble
 		private bool bitmap_updated = false;
 		private Bitmap bitmap_buffer;
 
-		public ClientUserData UserData;
-		//private bool isDrawing;
+		private ClientUserData userData;
 
 		public PageGame(ClientUserData userData) : this()
 		{
-			this.UserData = userData;
-			this.UserData.IsDrawing = false;
+			this.userData = userData;
+			this.userData.IsDrawing = false;
 			this.send_bitmap_thread = null;
 
 		}
@@ -294,7 +293,7 @@ namespace Scribble
 			Client.ErrorOccurred -= Client_ErrorOccurred;
 			Client.ObjectReceived -= Client_ObjectReceived;
 
-			this.UserData.IsDrawing = false;
+			this.userData.IsDrawing = false;
 		}
 
 		// Client Events
@@ -376,12 +375,12 @@ namespace Scribble
 			}
 			else if (obj is KickedNoMorePlayer)
 			{
-				this.Parent.Back();
+				this.Parent.closeCurrentPage();
 				MessageBox.Show("Alle Spieler haben das Spiel verlassen");
 			}
 			else if (obj is KickedByHost)
 			{
-				this.Parent.Back();
+				this.Parent.closeCurrentPage();
 				MessageBox.Show("Du wurdest aus dem Spiel geworfen!");
 			}
 		}
@@ -400,7 +399,7 @@ namespace Scribble
 		private void DrawField_BitmapChanged(object sender, EventArgs e)
 		{
 			// TODO: make sure that latest bitmap will be send
-			if (this.UserData.IsDrawing && !this.bitmap_updated)
+			if (this.userData.IsDrawing && !this.bitmap_updated)
 			{
 				Console.WriteLine("Start cloning");
 				this.bitmap_buffer = this.drawField.getBitmapClone();
@@ -431,7 +430,7 @@ namespace Scribble
 		}
 		private void lvwPlayers_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
 		{
-			this.btnKickPlayer.Visible = this.UserData.Host && e.IsSelected;
+			this.btnKickPlayer.Visible = this.userData.Host && e.IsSelected;
 		}
 		private void btnKickPlayer_Click(object sender, EventArgs e)
 		{
@@ -462,7 +461,7 @@ namespace Scribble
 
 				var item = new ListViewItem($"{i+1}. {player.PlayerName}", 0);
 				item.Tag = player.PlayerName;
-				item.ForeColor = player.PlayerName == UserData.PlayerName ? Color.LightBlue : Color.White;
+				item.ForeColor = player.PlayerName == userData.PlayerName ? Color.LightBlue : Color.White;
 
 				item.Text += $" [{player.Points}]";
 
@@ -478,7 +477,7 @@ namespace Scribble
 					item.Text += " [zeichnet]";
 
 					// TODO: find better solution
-					this.UserData.IsDrawing = this.UserData.PlayerName == player.PlayerName;
+					this.userData.IsDrawing = this.userData.PlayerName == player.PlayerName;
 
 					if (this.send_bitmap_thread == null)
 					{
@@ -488,12 +487,15 @@ namespace Scribble
 
 				}
 
-				Console.WriteLine(player.IsDrawing);
+				if (player.PlayerName == this.userData.PlayerName && player.Host)
+				{
+					this.userData.Host = true;
+				}
 
 				this.lvwPlayers.Items.Add(item);
 			}
 
-			var isDrawing = this.UserData.IsDrawing;
+			var isDrawing = this.userData.IsDrawing;
 			this.drawField.Enabled = isDrawing;
 			this.btnReset.Visible = isDrawing;
 			this.btnFillDraw.Visible = isDrawing;
@@ -503,7 +505,7 @@ namespace Scribble
 		}
 		private void send_bitmap()
 		{
-			while (this.UserData.IsDrawing)
+			while (this.userData.IsDrawing)
 			{
 				if (this.bitmap_updated)
 				{

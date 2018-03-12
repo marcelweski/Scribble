@@ -14,7 +14,7 @@ namespace Scribble
 
 		public static Random rand = new Random((int)DateTime.Now.Ticks);
 
-		public static IEnumerable<AdvancedNetworkLib.Client> Clients { get => server.Clients; }
+		public static IEnumerable<AdvancedNetworkLib.Client> Clients { get => server?.Clients; }
 
 		public static int PasswordHash;
 

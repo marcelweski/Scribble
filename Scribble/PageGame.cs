@@ -475,21 +475,12 @@ namespace Scribble
 				{
 					//item.Font = new Font("Segoe UI Emoji", 10.0f, FontStyle.Underline|FontStyle.Italic);
 					item.Text += " [zeichnet]";
-
-					// TODO: find better solution
-					this.userData.IsDrawing = this.userData.PlayerName == player.PlayerName;
-
-					if (this.send_bitmap_thread == null)
-					{
-						this.send_bitmap_thread = new Thread(this.send_bitmap);
-						this.send_bitmap_thread.Start();
-					}
-
 				}
 
-				if (player.PlayerName == this.userData.PlayerName && player.Host)
+				if (player.PlayerName == this.userData.PlayerName)
 				{
-					this.userData.Host = true;
+					this.userData.IsDrawing = player.IsDrawing;
+					this.userData.Host = player.Host;
 				}
 
 				this.lvwPlayers.Items.Add(item);
@@ -502,6 +493,15 @@ namespace Scribble
 			this.colorPalette.Visible = isDrawing;
 			this.nupPenWidth.Visible = isDrawing;
 			this.lblPenWidth.Visible = isDrawing;
+
+			if (isDrawing)
+			{
+				if (this.send_bitmap_thread == null)
+				{
+					this.send_bitmap_thread = new Thread(this.send_bitmap);
+					this.send_bitmap_thread.Start();
+				}
+			}
 		}
 		private void send_bitmap()
 		{

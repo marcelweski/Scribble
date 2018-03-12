@@ -19,6 +19,8 @@ namespace Scribble
 {
 	class PageGame : Page
 	{
+		// Fields
+		// Controls
 		private DarkTheme.NumericUpDown nupPenWidth;
 		private DrawField drawField;
 		private DarkTheme.Button btnReset;
@@ -27,24 +29,22 @@ namespace Scribble
 		private DarkTheme.Button btnFillDraw;
 		private WinAdvancedNetworkLibSample.ChatControl chatControl;
 		private DarkTheme.Label lblPenWidth;
+		private DarkTheme.Label lblWord;
+		private DarkTheme.Label lblRoundInfo;
+		private DarkTheme.Button btnKickPlayer;
+		private ListView lvwPlayers;
 
 		private Thread send_bitmap_thread;
 		private bool bitmap_updated = false;
 		private Bitmap bitmap_buffer;
 
-		private ListView lvwPlayers;
-
 		public ClientUserData UserData;
-		private RoomInfoSimple roomInfo;
-		private DarkTheme.Label lblWord;
-		private DarkTheme.Label lblRoundInfo;
-		private DarkTheme.Button btnKickPlayer;
-		private bool isDrawing;
+		//private bool isDrawing;
 
 		public PageGame(ClientUserData userData) : this()
 		{
 			this.UserData = userData;
-			this.isDrawing = false;
+			this.UserData.IsDrawing = false;
 			this.send_bitmap_thread = null;
 
 		}
@@ -53,7 +53,7 @@ namespace Scribble
 			InitializeComponent();
 
 			this.nupPenWidth.ValueChanged += nupPenSize_ValueChanged;
-			this.colorPalette.ColorChanged += ColorPalette1_ColorChanged;
+			this.colorPalette.ColorChanged += ColorPalette_ColorChanged;
 
 			this.Load += PageGame_Load;
 			this.Closed += PageGame_Closed;
@@ -286,27 +286,7 @@ namespace Scribble
 
 			Client.send(new ChangeState { State = State.Game });
 
-			//if (this.Server.Listening)
-			//{
-			//	this.Server.ObjectReceived += Server_ObjectReceived;
-
 			this.drawField.BitmapChanged += DrawField_BitmapChanged;
-
-			//	this.send_bitmap_thread = new Thread(this.send_bitmap);
-			//	this.send_bitmap_thread.Start();
-			//}
-			//else
-			//{
-			//	// set client to viewer
-			//	this.colorPalette1.Enabled = false;
-			//	this.btnFillDraw.Enabled = false;
-			//	this.btnReset.Enabled = false;
-			//	this.drawField.Enabled = false;
-			//	this.numericUpDown1.Enabled = false;
-
-			//	this.Client.ObjectReceived += Client_ObjectReceived;
-			//	this.Client.SendSuccessfull += Client_SendSuccessfull;
-			//}
 		}
 		private void PageGame_Closed(object sender, EventArgs e)
 		{
@@ -314,10 +294,7 @@ namespace Scribble
 			Client.ErrorOccurred -= Client_ErrorOccurred;
 			Client.ObjectReceived -= Client_ObjectReceived;
 
-			this.isDrawing = false;
-
-			//this.Server?.stop();
-			//this.Client?.disconnect();
+			this.UserData.IsDrawing = false;
 		}
 
 		// Client Events
@@ -371,13 +348,17 @@ namespace Scribble
 				var wordChoice = obj as WordChoice;
 				MessageWordChoice.Open(this.Parent, wordChoice, this.wordChoosen);
 			}
-			else if (obj is RoomInfoSimple)
-			{
-				roomInfo = (obj as RoomInfoSimple);
-			}
 			else if (obj is Drawing)
 			{
-				this.drawField.updateBitmap((obj as Drawing).Bitmap);
+				using (var ms = new MemoryStream((obj as Drawing).Data))
+				{
+					this.drawField.updateBitmap((Bitmap)Image.FromStream(ms));
+				}
+			}
+			else if (obj is DrawingRequest)
+			{
+				// send latest drawing
+				this.DrawField_BitmapChanged(null, EventArgs.Empty);
 			}
 			else if (obj is ChoosedWordInfo)
 			{
@@ -406,7 +387,7 @@ namespace Scribble
 		}
 
 		// Control Events
-		private void ColorPalette1_ColorChanged(object sender, System.Drawing.Color color)
+		private void ColorPalette_ColorChanged(object sender, System.Drawing.Color color)
 		{
 			this.drawField.PenColor = color;
 			this.drawField.BorderColor = color;
@@ -419,7 +400,7 @@ namespace Scribble
 		private void DrawField_BitmapChanged(object sender, EventArgs e)
 		{
 			// TODO: make sure that latest bitmap will be send
-			if (this.isDrawing && !this.bitmap_updated)
+			if (this.UserData.IsDrawing && !this.bitmap_updated)
 			{
 				Console.WriteLine("Start cloning");
 				this.bitmap_buffer = this.drawField.getBitmapClone();
@@ -454,7 +435,11 @@ namespace Scribble
 		}
 		private void btnKickPlayer_Click(object sender, EventArgs e)
 		{
-			// TODO: make player kickable
+			if (this.lvwPlayers.SelectedItems.Count > 0)
+			{
+				// kick selected player
+				Client.send(new KickedByHost { PlayerName = this.lvwPlayers.SelectedItems[0].Tag.ToString() });
+			}
 		}
 
 		// Private Methods
@@ -476,6 +461,7 @@ namespace Scribble
 				//var tileSize = this.lvwPlayers.TileSize;
 
 				var item = new ListViewItem($"{i+1}. {player.PlayerName}", 0);
+				item.Tag = player.PlayerName;
 				item.ForeColor = player.PlayerName == UserData.PlayerName ? Color.LightBlue : Color.White;
 
 				item.Text += $" [{player.Points}]";
@@ -492,7 +478,7 @@ namespace Scribble
 					item.Text += " [zeichnet]";
 
 					// TODO: find better solution
-					this.isDrawing = this.UserData.PlayerName == player.PlayerName;
+					this.UserData.IsDrawing = this.UserData.PlayerName == player.PlayerName;
 
 					if (this.send_bitmap_thread == null)
 					{
@@ -507,51 +493,40 @@ namespace Scribble
 				this.lvwPlayers.Items.Add(item);
 			}
 
-			this.drawField.Enabled = this.isDrawing;
-			this.btnReset.Visible = this.isDrawing;
-			this.btnFillDraw.Visible = this.isDrawing;
-			this.colorPalette.Visible = this.isDrawing;
-			this.nupPenWidth.Visible = this.isDrawing;
-			this.lblPenWidth.Visible = this.isDrawing;
+			var isDrawing = this.UserData.IsDrawing;
+			this.drawField.Enabled = isDrawing;
+			this.btnReset.Visible = isDrawing;
+			this.btnFillDraw.Visible = isDrawing;
+			this.colorPalette.Visible = isDrawing;
+			this.nupPenWidth.Visible = isDrawing;
+			this.lblPenWidth.Visible = isDrawing;
 		}
 		private void send_bitmap()
 		{
-			while (this.isDrawing)
+			while (this.UserData.IsDrawing)
 			{
 				if (this.bitmap_updated)
 				{
 					try
 					{
-						//MemoryStream ms = new MemoryStream();
-						//this.bitmap_buffer.Save(ms, ImageFormat.Png);
+						using (var ms = new MemoryStream())
+						{
+							this.bitmap_buffer.Save(ms, ImageFormat.Png);
+							this.bitmap_buffer.Dispose();
 
-						//Console.WriteLine($"Sending {this.bitmap_buffer.size} Bytes");
-						Console.WriteLine($"Sending Bytes");
+							Console.WriteLine($"Sending {ms.Length} Bytes");
 
-						//byte[] bytes = new byte[ms.Length];
-						//Array.Copy(ms.ToArray(), bytes, bytes.Length);
-
-						//Client.sendSync(new Drawing { Data = ms.ToArray() });
-						Client.sendSync(new Drawing { Bitmap = this.bitmap_buffer });
-
-						//var stream = client.GetStream();
-						//stream.Write(BitConverter.GetBytes(ms.Length), 0, sizeof(long));
-						//stream.Write(ms.ToArray(), 0, (int)ms.Length);
-
-						this.bitmap_buffer.Dispose();
-						//ms.Close();
-
-
+							Client.sendSync(new Drawing { Data = ms.ToArray() });
+						}
 					}
 					catch (Exception exc)
 					{
 						MessageBox.Show(exc.StackTrace + "\n" + exc.Message);
 					}
 
-
 					this.bitmap_updated = false;
 				}
-				Thread.Sleep(32);
+				Thread.Sleep(200);
 			}
 
 			this.send_bitmap_thread = null;

@@ -265,7 +265,7 @@ namespace Scribble
 		{
 			AdvancedNetworkLib.Client client = (sender as AdvancedNetworkLib.Client);
 			ClientUserData userData = client.UserData as ClientUserData;
-			RoomInfo roomInfo = this.rooms.Find(c => c.Name == userData.RoomName);
+			RoomInfo roomInfo = this.rooms.Find(c => c.Name == userData?.RoomName);
 
 			var obj = e.Object;
 			if (obj is ServerPassword)
@@ -417,8 +417,8 @@ namespace Scribble
 						this.sendRankListToAll(roomInfo);
 
 						// tell other players that the game starts
-						var clients = Server.Clients.Where(c => c.UserData != null && (c.UserData as ClientUserData).RoomName == userData.RoomName && (c.UserData as ClientUserData).State == State.LobbyReady);
-						this.sendObjectToPlayers(clients, new StartGame());
+						var players = this.getPlayersInLobbyAndReady(roomInfo);
+						this.sendObjectToPlayers(players, new StartGame());
 					}
 					else
 					{
@@ -429,18 +429,22 @@ namespace Scribble
 							// send ranklist
 							this.sendRankListToAll(roomInfo);
 
-							// TODO: send last drawing
+							// get current drawer and send drawing request
+							var currentDrawer = this.getCurrentDrawer(roomInfo);
+							if (currentDrawer != null)
+							{
+								currentDrawer.send(new DrawingRequest());
+							}
 						}
 						else
 						{
-							var playersInLobby = Server.Clients.Count(c =>
+							// count players in lobby
+							var playersInLobbyCount = this.getPlayersInLobbyAndReady(roomInfo).Count();
+
+							// start game when all players are in the game
+							if (playersInLobbyCount == 0)
 							{
-								var u = c.UserData as ClientUserData;
-								return u != null && u.RoomName == userData.RoomName && u.State == State.LobbyReady;
-							});
-							if (playersInLobby == 0)
-							{
-								// start game for the first game
+								// start game for the first time
 								roomInfo.Started = true;
 
 								// start first round
@@ -511,8 +515,8 @@ namespace Scribble
 			}
 			else if (obj is StartGame)
 			{
-				int playerCount = Server.Clients.Count(c => c.UserData != null && (c.UserData as ClientUserData).RoomName == userData.RoomName);
-				int playerCountReady = Server.Clients.Count(c => c.UserData != null && (c.UserData as ClientUserData).RoomName == userData.RoomName && (c.UserData as ClientUserData).State == State.LobbyReady);
+				int playerCount = this.getPlayers(roomInfo).Count();
+				int playerCountReady = this.getPlayersInLobbyAndReady(roomInfo).Count();
 				if (playerCount != playerCountReady || playerCount < 2)
 				{
 					client.send(new Error { Job = Job.GameStart });
@@ -579,7 +583,6 @@ namespace Scribble
 			{
 				// get every player in the same room, except drawer
 				var players = this.getPlayersInGameExceptDrawer(roomInfo);
-
 				this.sendObjectToPlayers(players, obj);
 			}
 			else if (obj is ChoosedWord)
@@ -598,6 +601,12 @@ namespace Scribble
 				this.revealCharOfWord(timer, roomInfo);
 				timer.Start();
 			}
+			else if (obj is KickedByHost)
+			{
+				var playerName = (obj as KickedByHost).PlayerName;
+				var player = this.getPlayerByName(playerName);
+				player?.send(obj);
+			}
 		}
 
 		// Control Events
@@ -607,20 +616,36 @@ namespace Scribble
 		}
 
 		// Player Requests
-		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInGame(RoomInfo roomInfo)
+		private IEnumerable<AdvancedNetworkLib.Client> getPlayers(RoomInfo roomInfo)
 		{
 			return Server.Clients.Where(c =>
 			{
 				var u = c.UserData as ClientUserData;
-				return u != null && u.RoomName == roomInfo.Name && u.State == State.Game;
+				return u != null && u.RoomName == roomInfo.Name;
+			});
+		}
+		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInGame(RoomInfo roomInfo)
+		{
+			return this.getPlayers(roomInfo).Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u.State == State.Game;
 			});
 		}
 		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInLobby(RoomInfo roomInfo)
 		{
-			return Server.Clients.Where(c =>
+			return this.getPlayers(roomInfo).Where(c =>
 			{
 				var u = c.UserData as ClientUserData;
-				return u != null && u.RoomName == roomInfo.Name && (u.State == State.Lobby || u.State == State.LobbyReady);
+				return (u.State == State.Lobby || u.State == State.LobbyReady);
+			});
+		}
+		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInLobbyAndReady(RoomInfo roomInfo)
+		{
+			return this.getPlayers(roomInfo).Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u.State == State.LobbyReady;
 			});
 		}
 		private IEnumerable<AdvancedNetworkLib.Client> getRemainingDrawerCandidates(RoomInfo roomInfo)
@@ -649,11 +674,7 @@ namespace Scribble
 		}
 		private IEnumerable<AdvancedNetworkLib.Client> getPlayersInLobbyAndGame(RoomInfo roomInfo)
 		{
-			return Server.Clients.Where(c =>
-			{
-				var u = c.UserData as ClientUserData;
-				return u != null && u.RoomName == roomInfo.Name && (u.State == State.Lobby || u.State == State.LobbyReady || u.State == State.Game);
-			});
+			return this.getPlayersInLobby(roomInfo).Concat(this.getPlayersInGame(roomInfo));
 		}
 		private IEnumerable<AdvancedNetworkLib.Client> getHosts()
 		{
@@ -662,6 +683,27 @@ namespace Scribble
 				var u = c.UserData as ClientUserData;
 				return u != null && u.Host;
 			});
+		}
+		private AdvancedNetworkLib.Client getCurrentDrawer(RoomInfo roomInfo)
+		{
+			var drawer = this.getPlayersInGame(roomInfo).Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u.IsDrawing;
+			});
+			if (drawer.Count() > 0)
+				return drawer.First();
+			return null;
+		}
+		private AdvancedNetworkLib.Client getPlayerByName(string playerName)
+		{
+			var player = Server.Clients.Where(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u != null && u.PlayerName == playerName;
+			});
+
+			return (player.Count() > 0) ? player.First() : null;
 		}
 
 		// Private Methods

@@ -6,7 +6,7 @@ namespace Scribble
 	[Serializable]
 	public class ServerPassword
 	{
-		public int Hash;
+		public int Hash { get; set; }
 	}
 
 	public enum Job
@@ -21,13 +21,13 @@ namespace Scribble
 	[Serializable]
 	public class Success
 	{
-		public Job Job;
+		public Job Job { get; set; }
 	}
 
 	[Serializable]
 	public class Error
 	{
-		public Job Job;
+		public Job Job { get; set; }
 	}
 
 	[Serializable]
@@ -42,7 +42,7 @@ namespace Scribble
 	[Serializable]
 	public class RoomList
 	{
-		public List<RoomListItem> Items;
+		public List<RoomListItem> Items { get; set; }
 
 		public RoomList()
 		{
@@ -63,46 +63,46 @@ namespace Scribble
 	[Serializable]
 	public class ChangeState
 	{
-		public State State;
-		public object Data;
+		public State State { get; set; }
+		public object Data { get; set; }
 	}
 
 	[Serializable]
 	public class ClientUserData
 	{
-		public bool Host;
-		public string RoomName;
-		public string PlayerName;
-		public int Password;
-		public State State;
-		public bool IsDrawing;
-		public long Points;
+		public bool Host { get; set; }
+		public string RoomName { get; set; }
+		public string PlayerName { get; set; }
+		public int Password { get; set; }
+		public State State { get; set; }
+		public bool IsDrawing { get; set; }
+		public long Points { get; set; }
 	}
 
 	[Serializable]
 	public class RandomRoomName
 	{
-		public string Name;
+		public string Name { get; set; }
 	}
 
 	[Serializable]
 	public class RandomPlayerName
 	{
-		public string Name;
+		public string Name { get; set; }
 	}
 
 	[Serializable]
 	public class CreateRoom
 	{
-		public string Name;
-		public int Password;
+		public string Name { get; set; }
+		public int Password { get; set; }
 	}
 
 	[Serializable]
 	public class JoinRoom
 	{
-		public string Name;
-		public int Password;
+		public string Name { get; set; }
+		public int Password { get; set; }
 	}
 
 	[Serializable]
@@ -125,9 +125,7 @@ namespace Scribble
 
 	[Serializable]
 	public class StartGame
-	{
-
-	}
+	{ }
 
 	[Serializable]
 	public class RankListItem
@@ -160,20 +158,20 @@ namespace Scribble
 	[Serializable]
 	public class ChatMessage
 	{
-		public string PlayerName;
-		public string Text;
+		public string PlayerName { get; set; }
+		public string Text { get; set; }
 	}
 
 	[Serializable]
 	public class ChoosingWordInfo
 	{
-		public string PlayerName;
+		public string PlayerName { get; set; }
 	}
 
 	[Serializable]
 	public class FoundWordInfo
 	{
-		public string PlayerName;
+		public string PlayerName { get; set; }
 	}
 
 	[Serializable]
@@ -192,22 +190,10 @@ namespace Scribble
 	}
 
 	[Serializable]
-	public class RoomInfoSimple
-	{
-		//public int RoundCount;
-		//public int CurrentRound;
-
-		public string Name;
-		public string Drawer;
-		public string CurrentWord;
-
-	}
-
-	[Serializable]
 	public class RoundInfo
 	{
 		public int Number { get; set; }
-		public long StartTime;
+		public long StartTime { get; set; }
 		public System.Windows.Forms.Timer WordUpdateTimer { get; set; }
 
 		public Dictionary<string, long> PlayerTimes { get; set; }
@@ -223,16 +209,19 @@ namespace Scribble
 	}
 
 	[Serializable]
-	public class RoomInfo : RoomInfoSimple
+	public class RoomInfo
 	{
-		public int TotalRoundCount;
-		//public int CurrentRound;
+		public string Name { get; set; }
+		public string Drawer { get; set; }
+		public string CurrentWord { get; set; }
+
+		public int TotalRoundCount { get; set; }
 
 		public RoundInfo RoundInfo { get; set; }
 
-		public bool Started;
-		public List<int> ChoosenWordIndices;
-		public List<char> CurrentWordRevealed;
+		public bool Started { get; set; }
+		public List<int> ChoosenWordIndices { get; set; }
+		public List<char> CurrentWordRevealed { get; set; }
 
 		public RoomInfo()
 		{
@@ -252,9 +241,12 @@ namespace Scribble
 	[Serializable]
 	public class Drawing
 	{
-		//public byte[] Data;
-		public System.Drawing.Bitmap Bitmap;
+		public byte[] Data { get; set; }
 	}
+
+	[Serializable]
+	public class DrawingRequest
+	{ }
 
 	[Serializable]
 	public class ChoosedWord
@@ -270,9 +262,7 @@ namespace Scribble
 
 	[Serializable]
 	public class FinalEvaluation
-	{
-
-	}
+	{ }
 
 	[Serializable]
 	public class KickedNoMorePlayer
@@ -280,5 +270,7 @@ namespace Scribble
 
 	[Serializable]
 	public class KickedByHost
-	{ }
+	{
+		public string PlayerName { get; set; }
+	}
 }

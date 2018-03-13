@@ -10,28 +10,32 @@ namespace Scribble
 {
 	public class PageHostOverview : Page
 	{
-		private DarkTheme.Button btnStop;
+		// Controls
+		private DarkTheme.Label lblTitle;
+		private DarkTheme.Label lblInfo;
+		private ListView lvwWords;
+		private ColumnHeader colWord;
+		private ColumnHeader colDownvotes;
 		private ListView lvwRooms;
 		private ColumnHeader colRoomName;
 		private ColumnHeader colPlayersInLobby;
 		private ColumnHeader colPlayersInGame;
-		private DarkTheme.Label lblInfo;
+		private ColumnHeader colPlayers;
 		private DarkTheme.Label lblClientCount;
 		private DarkTheme.Label lblPlayerInLobbyCount;
 		private DarkTheme.Label lblPlayerInGameCount;
 		private DarkTheme.Label lblRoomCount;
-		private DarkTheme.Label lblTitle;
-
-		private int roundDuration = 60; // in seconds
+		private DarkTheme.Button btnStop;
 
 		////////////////////////////////////////////////////////////////////////////////////
+		private int roundDuration = 120; // in seconds
+
 		private List<RoomInfo> rooms;
-		private ColumnHeader colSpieler;
 
 		private class WordListItem
 		{
-			public string Word;
-			public int DownVotes;
+			public string Word { get; set; }
+			public int DownVotes { get; set; }
 		}
 		private List<WordListItem> wordList;
 		////////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +50,6 @@ namespace Scribble
 			this.lblInfo.Text = $"Denke daran den Port {Server.Port} mit dem TCP-Protokoll auf deinem Router freizugeben!";
 
 			this.rooms = new List<RoomInfo>();
-			this.wordList = this.loadWordListFromFile("../../Resources/wordlists/de.txt");
 		}
 
 		private void InitializeComponent()
@@ -57,12 +60,15 @@ namespace Scribble
 			this.colRoomName = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colPlayersInLobby = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.colPlayersInGame = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-			this.colSpieler = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colPlayers = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.lblInfo = new DarkTheme.Label();
 			this.lblClientCount = new DarkTheme.Label();
 			this.lblPlayerInLobbyCount = new DarkTheme.Label();
 			this.lblPlayerInGameCount = new DarkTheme.Label();
 			this.lblRoomCount = new DarkTheme.Label();
+			this.lvwWords = new System.Windows.Forms.ListView();
+			this.colWord = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+			this.colDownvotes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
 			this.SuspendLayout();
 			// 
 			// lblTitle
@@ -103,8 +109,8 @@ namespace Scribble
             this.colRoomName,
             this.colPlayersInLobby,
             this.colPlayersInGame,
-            this.colSpieler});
-			this.lvwRooms.Location = new System.Drawing.Point(68, 138);
+            this.colPlayers});
+			this.lvwRooms.Location = new System.Drawing.Point(274, 134);
 			this.lvwRooms.Name = "lvwRooms";
 			this.lvwRooms.Size = new System.Drawing.Size(403, 320);
 			this.lvwRooms.TabIndex = 3;
@@ -128,8 +134,8 @@ namespace Scribble
 			// 
 			// colSpieler
 			// 
-			this.colSpieler.Text = "Spieler";
-			this.colSpieler.Width = 50;
+			this.colPlayers.Text = "Spieler";
+			this.colPlayers.Width = 50;
 			// 
 			// lblInfo
 			// 
@@ -149,7 +155,7 @@ namespace Scribble
 			this.lblClientCount.BackColor = System.Drawing.Color.Transparent;
 			this.lblClientCount.Font = new System.Drawing.Font("Segoe UI", 12F);
 			this.lblClientCount.ForeColor = System.Drawing.Color.White;
-			this.lblClientCount.Location = new System.Drawing.Point(490, 138);
+			this.lblClientCount.Location = new System.Drawing.Point(696, 134);
 			this.lblClientCount.Name = "lblClientCount";
 			this.lblClientCount.Size = new System.Drawing.Size(161, 21);
 			this.lblClientCount.TabIndex = 5;
@@ -161,7 +167,7 @@ namespace Scribble
 			this.lblPlayerInLobbyCount.BackColor = System.Drawing.Color.Transparent;
 			this.lblPlayerInLobbyCount.Font = new System.Drawing.Font("Segoe UI", 12F);
 			this.lblPlayerInLobbyCount.ForeColor = System.Drawing.Color.White;
-			this.lblPlayerInLobbyCount.Location = new System.Drawing.Point(490, 173);
+			this.lblPlayerInLobbyCount.Location = new System.Drawing.Point(696, 169);
 			this.lblPlayerInLobbyCount.Name = "lblPlayerInLobbyCount";
 			this.lblPlayerInLobbyCount.Size = new System.Drawing.Size(149, 21);
 			this.lblPlayerInLobbyCount.TabIndex = 6;
@@ -173,7 +179,7 @@ namespace Scribble
 			this.lblPlayerInGameCount.BackColor = System.Drawing.Color.Transparent;
 			this.lblPlayerInGameCount.Font = new System.Drawing.Font("Segoe UI", 12F);
 			this.lblPlayerInGameCount.ForeColor = System.Drawing.Color.White;
-			this.lblPlayerInGameCount.Location = new System.Drawing.Point(490, 208);
+			this.lblPlayerInGameCount.Location = new System.Drawing.Point(696, 204);
 			this.lblPlayerInGameCount.Name = "lblPlayerInGameCount";
 			this.lblPlayerInGameCount.Size = new System.Drawing.Size(146, 21);
 			this.lblPlayerInGameCount.TabIndex = 7;
@@ -185,14 +191,40 @@ namespace Scribble
 			this.lblRoomCount.BackColor = System.Drawing.Color.Transparent;
 			this.lblRoomCount.Font = new System.Drawing.Font("Segoe UI", 12F);
 			this.lblRoomCount.ForeColor = System.Drawing.Color.White;
-			this.lblRoomCount.Location = new System.Drawing.Point(490, 243);
+			this.lblRoomCount.Location = new System.Drawing.Point(696, 239);
 			this.lblRoomCount.Name = "lblRoomCount";
 			this.lblRoomCount.Size = new System.Drawing.Size(75, 21);
 			this.lblRoomCount.TabIndex = 8;
 			this.lblRoomCount.Text = "Räume: 0";
 			// 
+			// lvwWords
+			// 
+			this.lvwWords.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+			this.lvwWords.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colWord,
+            this.colDownvotes});
+			this.lvwWords.Location = new System.Drawing.Point(68, 134);
+			this.lvwWords.Name = "lvwWords";
+			this.lvwWords.Size = new System.Drawing.Size(200, 320);
+			this.lvwWords.TabIndex = 9;
+			this.lvwWords.UseCompatibleStateImageBehavior = false;
+			this.lvwWords.View = System.Windows.Forms.View.Details;
+			// 
+			// colWord
+			// 
+			this.colWord.Text = "Wort";
+			this.colWord.Width = 130;
+			// 
+			// colDownvotes
+			// 
+			this.colDownvotes.Text = "Downvotes";
+			this.colDownvotes.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+			this.colDownvotes.Width = 49;
+			// 
 			// PageHostOverview
 			// 
+			this.Controls.Add(this.lvwWords);
 			this.Controls.Add(this.lblRoomCount);
 			this.Controls.Add(this.lblPlayerInGameCount);
 			this.Controls.Add(this.lblPlayerInLobbyCount);
@@ -211,6 +243,10 @@ namespace Scribble
 		// Page Events
 		private void PageHostOverview_Load(object sender, EventArgs e)
 		{
+			// TODO: make words downvoteable
+			this.wordList = this.loadWordListFromFile(@"Resources\wordlists\de.txt");
+			this.updateWordListControl(this.wordList);
+
 			Server.StateChanged += Server_StateChanged;
 			Server.ErrorOccurred += Server_ErrorOccurred;
 			Server.ClientsChanged += Server_ClientsChanged;
@@ -241,6 +277,18 @@ namespace Scribble
 
 			lock (this.rooms)
 			{
+				// check if rooms have enough player
+				foreach (var roomInfo in this.rooms)
+				{
+					// check if only one player is left in game
+					var playersInGame = this.getPlayersInGame(roomInfo);
+					if (playersInGame.Count() == 1)
+					{
+						// kick last player in game
+						playersInGame.First().send(new KickedNoMorePlayer());
+					}
+				}
+
 				// update roominfos
 				this.sendRoomListToAll();
 
@@ -249,7 +297,7 @@ namespace Scribble
 				{
 					var playersInGame = this.getPlayersInGame(roomInfo);
 					var hostFound = playersInGame.Any(p => (p.UserData as ClientUserData).Host);
-					if (!hostFound)
+					if (!hostFound && playersInGame.Count() > 0)
 					{
 						// nominate new host
 						(playersInGame.First().UserData as ClientUserData).Host = true;
@@ -261,8 +309,9 @@ namespace Scribble
 				// check if rooms still have a drawer
 				foreach (var roomInfo in this.rooms)
 				{
-					var drawerFound = this.getPlayersInGame(roomInfo).Any(p => (p.UserData as ClientUserData).IsDrawing);
-					if (!drawerFound)
+					var playersInGame = this.getPlayersInGame(roomInfo);
+					var drawerFound = playersInGame.Any(p => (p.UserData as ClientUserData).IsDrawing);
+					if (!drawerFound && playersInGame.Count() > 0)
 					{
 						// choose new drawer
 						this.nextDrawer(roomInfo);
@@ -291,21 +340,7 @@ namespace Scribble
 			if (obj is ServerPassword)
 			{
 				ServerPassword serverPassword = obj as ServerPassword;
-
-				if (serverPassword.Hash == Server.PasswordHash)
-				{
-					client.send(new Success { Job = Job.AcceptPassword });
-
-					client.UserData = new ClientUserData
-					{
-						State = State.None
-					};
-
-				}
-				else
-				{
-					client.send(new Error { Job = Job.AcceptPassword });
-				}
+				this.checkServerPassword(client, serverPassword);
 			}
 			else if (obj is ChangeState)
 			{
@@ -320,12 +355,12 @@ namespace Scribble
 					userData.Password = 0;
 					userData.IsDrawing = false;
 					userData.Points = 0;
+					userData.Host = false;
 
 					// if player was in lobby
 					if (oldState == State.Lobby || oldState == State.LobbyReady)
 					{
 						this.sendLobbyListToAll(roomInfo);
-						//this.sendRoomListToAll();
 					}
 
 					// if player was in game
@@ -345,24 +380,8 @@ namespace Scribble
 						}
 					}
 
-					userData.Host = false;
-
 					// update and send roomlist
 					this.sendRoomListToAll();
-
-					//if (userData.Host)
-					//{
-					//	userData.Host = false;
-
-					//	// update and send roomlist
-					//	this.sendRoomListToAll();
-
-					//}
-					//else
-					//{
-					//	// send roomlist
-					//	this.sendRoomList(client);
-					//}
 				}
 				else if (userData.State == State.RoomCreation)
 				{
@@ -383,9 +402,12 @@ namespace Scribble
 						string randomPlayerName = string.Empty;
 
 						// generate random room name
-						// TODO: better performance
-						int i = 1000;
-						while (Server.Clients.Count(c => (c.UserData as ClientUserData).PlayerName == (randomPlayerName = $"Player{Server.rand.Next(0, 999).ToString().PadLeft(3, '0')}") && (c.UserData as ClientUserData).RoomName == userData.RoomName) > 0 && i-- > 0)
+
+						var players = this.getPlayers(roomInfo);
+						while (players.Any(p =>
+						{
+							return (p.UserData as ClientUserData).PlayerName == (randomPlayerName = $"Player{Server.rand.Next(0, 999).ToString().PadLeft(3, '0')}");
+						}))
 						{ }
 
 						userData.PlayerName = randomPlayerName;
@@ -482,59 +504,12 @@ namespace Scribble
 			else if (obj is CreateRoom)
 			{
 				CreateRoom createRoom = obj as CreateRoom;
-
-				int roomsWithSameName = Server.Clients.Count(c => c.UserData != null && (c.UserData as ClientUserData).RoomName == createRoom.Name);
-				if (roomsWithSameName > 0)
-				{
-					client.send(new Error { Job = Job.RoomCreation });
-				}
-				else
-				{
-					userData.RoomName = createRoom.Name;
-					userData.Password = createRoom.Password;
-					userData.Host = true;
-
-					// create room list entry
-					var item = new RoomInfo
-					{
-						Name = userData.RoomName,
-						Started = false,
-						TotalRoundCount = 5,
-					};
-					lock (this.rooms)
-					{
-						this.rooms.Add(item);
-					}
-
-					client.send(new Success { Job = Job.RoomCreation });
-				}
+				this.createRoom(client, createRoom);
 			}
 			else if (obj is JoinRoom)
 			{
 				JoinRoom joinRoom = obj as JoinRoom;
-
-				// check password
-				bool passwordIsValid = Server.Clients.Count(c =>
-				{
-					var u = c.UserData as ClientUserData;
-					return (u != null && u.RoomName == joinRoom.Name && u.Password == joinRoom.Password);
-
-				}) > 0;
-
-				if (!passwordIsValid)
-				{
-					client.send(new Error { Job = Job.RoomJoin });
-				}
-				else
-				{
-					userData.RoomName = joinRoom.Name;
-					userData.Password = joinRoom.Password;
-					userData.Host = false;
-
-					client.send(new Success { Job = Job.RoomJoin });
-				}
-
-				this.updateOverview();
+				this.joinRoom(client, joinRoom);
 			}
 			else if (obj is StartGame)
 			{
@@ -558,7 +533,7 @@ namespace Scribble
 				var players = this.getPlayersInGame(roomInfo);
 
 				// check if entered word is equal to searched word
-				bool foundWord = (roomInfo.CurrentWord == chatMessage.Text);
+				bool foundWord = (roomInfo.CurrentWord.ToLower() == chatMessage.Text.ToLower());
 
 				if (foundWord && (roomInfo.RoundInfo.PlayerTimes.ContainsKey(userData.PlayerName) || userData.IsDrawing))
 				{
@@ -730,6 +705,80 @@ namespace Scribble
 		}
 
 		// Private Methods
+		private void checkServerPassword(AdvancedNetworkLib.Client client, ServerPassword serverPassword)
+		{
+			if (serverPassword.Hash == Server.PasswordHash)
+			{
+				client.send(new Success { Job = Job.AcceptPassword });
+
+				client.UserData = new ClientUserData();
+			}
+			else
+			{
+				client.send(new Error { Job = Job.AcceptPassword });
+			}
+		}
+		private void createRoom(AdvancedNetworkLib.Client client, CreateRoom createRoom)
+		{
+			ClientUserData userData = client.UserData as ClientUserData;
+
+			// check if there is any room with the same name
+			if (Server.Clients.Any(c => (c.UserData as ClientUserData)?.RoomName == createRoom.Name))
+			{
+				client.send(new Error { Job = Job.RoomCreation });
+			}
+			else
+			{
+				userData.RoomName = createRoom.Name;
+				userData.Password = createRoom.Password;
+				userData.Host = true;
+
+				// create room list entry
+				lock (this.rooms)
+				{
+					// TODO: make round count variable
+					this.rooms.Add(new RoomInfo
+					{
+						Name = userData.RoomName,
+						Started = false,
+						TotalRoundCount = 5,
+					});
+				}
+
+				client.send(new Success { Job = Job.RoomCreation });
+			}
+		}
+		private void joinRoom(AdvancedNetworkLib.Client client, JoinRoom joinRoom)
+		{
+			ClientUserData userData = client.UserData as ClientUserData;
+
+			// check password
+			bool passwordIsValid = Server.Clients.Any(c =>
+			{
+				var u = c.UserData as ClientUserData;
+				return u != null && u.RoomName == joinRoom.Name && u.Password == joinRoom.Password;
+			});
+
+			if (!passwordIsValid)
+			{
+				client.send(new Error { Job = Job.RoomJoin });
+			}
+			else
+			{
+				userData.RoomName = joinRoom.Name;
+				userData.Password = joinRoom.Password;
+				userData.Host = false;
+
+				client.send(new Success { Job = Job.RoomJoin });
+			}
+
+			this.updateOverview();
+		}
+		private void setChoosenWord()
+		{
+
+		}
+
 		private void sendObjectToPlayers(IEnumerable<AdvancedNetworkLib.Client> players, object obj)
 		{
 			foreach (var player in players)
@@ -777,16 +826,21 @@ namespace Scribble
 		private void nextDrawer(RoomInfo roomInfo)
 		{
 			// reset current drawer to normal player
-			try
+			//try
 			{
-				var drawingPlayer = Server.Clients.First(c =>
+				//var drawingPlayer = Server.Clients.First(c =>
+				//{
+				//	var u = c.UserData as ClientUserData;
+				//	return u != null && u.RoomName == roomInfo.Name && u.PlayerName == roomInfo.Drawer;
+				//});
+				//(drawingPlayer.UserData as ClientUserData).IsDrawing = false;
+				var drawer = this.getCurrentDrawer(roomInfo);
+				if (drawer != null)
 				{
-					var u = c.UserData as ClientUserData;
-					return u != null && u.RoomName == roomInfo.Name && u.PlayerName == roomInfo.Drawer;
-				});
-				(drawingPlayer.UserData as ClientUserData).IsDrawing = false;
+					(drawer.UserData as ClientUserData).IsDrawing = false;
+				}
 			}
-			catch { }
+			//catch { }
 
 			// evaluate current drawing-round (update player points)
 			foreach (var item in roomInfo.RoundInfo.PlayerTimes)
@@ -860,7 +914,7 @@ namespace Scribble
 				}
 				else
 				{
-					// TODO: show final evalution
+					// TODO: create and send final evalution
 					var allPlayers = this.getPlayersInGame(roomInfo);
 					foreach (var p in allPlayers)
 					{
@@ -869,51 +923,6 @@ namespace Scribble
 				}
 			}
 		}
-		//private void evaluateRound(RoomInfo roomInfo)
-		//{
-		//	var drawingPlayer = Server.Clients.First(c =>
-		//	{
-		//		var u = c.UserData as ClientUserData;
-		//		return u != null && u.RoomName == roomInfo.Name && u.PlayerName == roomInfo.Drawer;
-		//	});
-		//	(drawingPlayer.UserData as ClientUserData).IsDrawing = false;
-
-		//	// evaluate current round (update player points)
-		//	foreach (var item in roomInfo.RoundInfo.PlayerTimes)
-		//	{
-		//		var player = Server.Clients.First(c =>
-		//		{
-		//			var u = c.UserData as ClientUserData;
-		//			return u != null && u.PlayerName == item.Key;
-		//		});
-
-		//		if (player != null)
-		//		{
-		//			(player.UserData as ClientUserData).Points += item.Value;
-		//		}
-		//	}
-
-		//	// reset round-info
-		//	roomInfo.RoundInfo.StartTime = 0;
-		//	roomInfo.RoundInfo.PlayerTimes.Clear();
-
-		//	// send updated ranklist
-		//	this.sendRankListToAll(roomInfo.Name);
-
-		//	// TODO: create and send evalution
-
-			
-
-		//	//if (roomInfo.RoundInfo.Number < roomInfo.TotalRoundCount)
-		//	//{
-		//	//	// start next round
-		//	//	//roomInfo.RoundInfo.Number++;
-		//	//}
-		//	//else
-		//	//{
-		//	//	// TODO: show final evalution
-		//	//}
-		//}
 		private void revealCharOfWord(object sender, RoomInfo roomInfo)
 		{
 			bool fullyRevealed = false;
@@ -1065,22 +1074,6 @@ namespace Scribble
 			this.updateOverview();
 		}
 
-		//private void updateRoomList()
-		//{
-		//	// get all clients that are hosts
-		//	var hosts = this.getHosts();
-
-		//	this.roomList.Items.Clear();
-		//	foreach (var host in hosts)
-		//	{
-		//		var u = host.UserData as ClientUserData;
-		//		this.roomList.Items.Add(new RoomListItem
-		//		{
-		//			Name = u.RoomName,
-		//			PlayerCount = Server.Clients.Count(c2 => c2.UserData != null && (c2.UserData as ClientUserData).RoomName == u.RoomName),
-		//		});
-		//	}
-		//}
 		private void sendRoomList(AdvancedNetworkLib.Client client)
 		{
 			// TODO: make this more efficent
@@ -1099,11 +1092,28 @@ namespace Scribble
 				this.lvwRooms.Items.Add(new ListViewItem(new string[] { room.Name, room.PlayersInLobby.ToString(), room.PlayersInGame.ToString(), room.TotalPlayers.ToString() }));
 			}
 		}
-		private List<WordListItem> loadWordListFromFile(string path)
+
+		private List<WordListItem> loadWordListFromFile(string path, bool tryAgain = true)
 		{
 			var wordList = new List<WordListItem>();
 
-			var lines = File.ReadAllLines(path, Encoding.UTF8);
+			string[] lines = null;
+			try
+			{
+				lines = File.ReadAllLines(path, Encoding.UTF8);
+			}
+			catch (IOException exc)
+			{
+				if (tryAgain)
+				{
+					return this.loadWordListFromFile(Path.Combine(@"..\..\", path), false);
+				}
+				else
+				{
+					MessageBox.Show(exc.Message);
+					return wordList;
+				}
+			}
 			foreach (var line in lines)
 			{
 				var parts = line.Split(';');
@@ -1129,6 +1139,16 @@ namespace Scribble
 			player.send(wordChoice);
 		}
 
+		private void updateWordListControl(List<WordListItem> wordList)
+		{
+			var orderedWordList = wordList.OrderBy(w => w.DownVotes);
+
+			this.lvwWords.Items.Clear();
+			foreach (var word in orderedWordList)
+			{
+				this.lvwWords.Items.Add(new ListViewItem(new string[] { word.Word, word.DownVotes.ToString() }));
+			}
+		}
 		private void updateCountLabels()
 		{
 			this.lblClientCount.Text = $"Verbundene Clients: {Server.Clients.Count()}";

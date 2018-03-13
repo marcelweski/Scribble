@@ -27,6 +27,8 @@ namespace DarkTheme
 		private TitleBarButton btnClose;
 		private TitleBarButton btnBack;
 
+		private Pen borderPen;
+
 		private bool backClickedSet = false;
 		public event EventHandler BackClicked
 		{
@@ -53,6 +55,17 @@ namespace DarkTheme
 			this.FormBorderStyle = FormBorderStyle.None;
 
 			this.DoubleBuffered = true;
+
+			// pick random border color
+			var colors = new System.Drawing.Color[]
+			{
+				System.Drawing.Color.DarkGray,
+				System.Drawing.Color.Orange,
+				System.Drawing.Color.GreenYellow,
+				System.Drawing.Color.Red,
+				System.Drawing.Color.LightBlue
+			};
+			this.borderPen = new Pen(colors[new Random((int)DateTime.Now.Ticks).Next(colors.Length)]);
 
 			this.lblTitle = new Label();
 			this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(255, 255, 255);
@@ -291,7 +304,7 @@ namespace DarkTheme
 			base.OnPaint(e);
 
 			if (this.WindowState != FormWindowState.Maximized)
-				e.Graphics.DrawRectangle(Pens.DarkGray, 0, 0, this.Width-1, this.Height-1);
+				e.Graphics.DrawRectangle(this.borderPen, 0, 0, this.Width-1, this.Height-1);
 		}
 	}
 }

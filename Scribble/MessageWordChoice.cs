@@ -7,19 +7,13 @@ using System.Windows.Forms;
 
 namespace Scribble
 {
-	public class WordChoosenEventArgs: EventArgs
-	{
-		public string Word { get; set; }
-	}
-
 	public class MessageWordChoice : UserControl
 	{
+		private DarkTheme.Button btnFirstWord;
 		public DarkTheme.Button btnSecondWord;
 		public DarkTheme.Button btnThirdWord;
+		private DarkTheme.Label lblDownvoteInfo;
 		public DarkTheme.Label lblTitle;
-
-		//private PictureBox pictureBox;
-		private DarkTheme.Button btnFirstWord;
 
 		private event EventHandler<WordChoosenEventArgs> WordChoosen;
 
@@ -89,6 +83,7 @@ namespace Scribble
 			this.btnSecondWord = new DarkTheme.Button();
 			this.btnFirstWord = new DarkTheme.Button();
 			this.lblTitle = new DarkTheme.Label();
+			this.lblDownvoteInfo = new DarkTheme.Label();
 			this.SuspendLayout();
 			// 
 			// btnThirdWord
@@ -107,7 +102,8 @@ namespace Scribble
 			this.btnThirdWord.TabIndex = 2;
 			this.btnThirdWord.Text = "Drittes Wort";
 			this.btnThirdWord.UseVisualStyleBackColor = false;
-			this.btnThirdWord.Click += new System.EventHandler(this.btnThirdWord_Click);
+			this.btnThirdWord.Click += new System.EventHandler(this.btnWord_Click);
+			this.btnThirdWord.MouseClick += new System.Windows.Forms.MouseEventHandler(this.btnWord_MouseClick);
 			// 
 			// btnSecondWord
 			// 
@@ -125,7 +121,8 @@ namespace Scribble
 			this.btnSecondWord.TabIndex = 1;
 			this.btnSecondWord.Text = "Zweites Wort";
 			this.btnSecondWord.UseVisualStyleBackColor = false;
-			this.btnSecondWord.Click += new System.EventHandler(this.btnSecondWord_Click);
+			this.btnSecondWord.Click += new System.EventHandler(this.btnWord_Click);
+			this.btnSecondWord.MouseClick += new System.Windows.Forms.MouseEventHandler(this.btnWord_MouseClick);
 			// 
 			// btnFirstWord
 			// 
@@ -143,7 +140,8 @@ namespace Scribble
 			this.btnFirstWord.TabIndex = 0;
 			this.btnFirstWord.Text = "Erstes Wort";
 			this.btnFirstWord.UseVisualStyleBackColor = false;
-			this.btnFirstWord.Click += new System.EventHandler(this.btnFirstWord_Click);
+			this.btnFirstWord.Click += new System.EventHandler(this.btnWord_Click);
+			this.btnFirstWord.MouseClick += new System.Windows.Forms.MouseEventHandler(this.btnWord_MouseClick);
 			// 
 			// lblTitle
 			// 
@@ -158,9 +156,23 @@ namespace Scribble
 			this.lblTitle.TabIndex = 3;
 			this.lblTitle.Text = "Wähle ein Wort aus";
 			// 
+			// lblDownvoteInfo
+			// 
+			this.lblDownvoteInfo.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
+			this.lblDownvoteInfo.BackColor = System.Drawing.Color.Transparent;
+			this.lblDownvoteInfo.Font = new System.Drawing.Font("Segoe UI", 10F);
+			this.lblDownvoteInfo.ForeColor = System.Drawing.Color.White;
+			this.lblDownvoteInfo.Location = new System.Drawing.Point(119, 74);
+			this.lblDownvoteInfo.Name = "lblDownvoteInfo";
+			this.lblDownvoteInfo.Size = new System.Drawing.Size(616, 23);
+			this.lblDownvoteInfo.TabIndex = 4;
+			this.lblDownvoteInfo.Text = "Mit einem Rechtsklick auf ein Wort, kannst du diesem ein Downvote geben";
+			this.lblDownvoteInfo.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+			// 
 			// MessageWordChoice
 			// 
 			this.BackColor = System.Drawing.Color.Black;
+			this.Controls.Add(this.lblDownvoteInfo);
 			this.Controls.Add(this.lblTitle);
 			this.Controls.Add(this.btnThirdWord);
 			this.Controls.Add(this.btnSecondWord);
@@ -172,20 +184,23 @@ namespace Scribble
 
 		}
 
-		private void btnFirstWord_Click(object sender, EventArgs e)
+		private void btnWord_Click(object sender, EventArgs e)
 		{
-			this.WordChoosen?.Invoke(this, new WordChoosenEventArgs { Word = this.btnFirstWord.Text });
+			this.WordChoosen?.Invoke(this, new WordChoosenEventArgs { Word = (sender as DarkTheme.Button).Text });
 			this.Dispose();
 		}
-		private void btnSecondWord_Click(object sender, EventArgs e)
+
+		private void btnWord_MouseClick(object sender, MouseEventArgs e)
 		{
-			this.WordChoosen?.Invoke(this, new WordChoosenEventArgs { Word = this.btnSecondWord.Text });
-			this.Dispose();
+			if (e.Button == MouseButtons.Right)
+			{
+				MessageBox.Show("Dieses Feature kommt bald!");
+			}
 		}
-		private void btnThirdWord_Click(object sender, EventArgs e)
-		{
-			this.WordChoosen?.Invoke(this, new WordChoosenEventArgs { Word = this.btnThirdWord.Text });
-			this.Dispose();
-		}
+	}
+
+	public class WordChoosenEventArgs : EventArgs
+	{
+		public string Word { get; set; }
 	}
 }

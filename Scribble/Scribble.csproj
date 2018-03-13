@@ -108,7 +108,9 @@
     </Compile>
     <Compile Include="IEnumerableExtensions.cs" />
     <Compile Include="Message.cs" />
-    <Compile Include="MessageWordChoice.cs" />
+    <Compile Include="MessageWordChoice.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Packets.cs" />
     <Compile Include="Page.cs">
       <SubType>UserControl</SubType>
@@ -195,6 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="pencil.ico" />
+    <Content Include="Resources\wordlists\de.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

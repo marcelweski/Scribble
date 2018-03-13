@@ -164,7 +164,7 @@ namespace Scribble
 			{
 				this.btnConnect.Text = "Authentifiziere...";
 
-				(sender as AdvancedNetworkLib.Client).send(new ServerPassword { Hash = this.txtPassword.Text.GetHashCode() });
+				(sender as AdvancedNetworkLib.Client).send(new ServerPassword(this.txtPassword.Text.GetHashCode()));
 			}
 		}
 		private void Client_ErrorOccurred(object sender, AdvancedNetworkLib.ErrorOccurredEventArgs e)

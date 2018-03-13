@@ -7,6 +7,11 @@ namespace Scribble
 	public class ServerPassword
 	{
 		public int Hash { get; set; }
+
+		public ServerPassword(int hash)
+		{
+			this.Hash = hash;
+		}
 	}
 
 	public enum Job
@@ -77,6 +82,17 @@ namespace Scribble
 		public State State { get; set; }
 		public bool IsDrawing { get; set; }
 		public long Points { get; set; }
+
+		public ClientUserData()
+		{
+			this.Host = false;
+			this.RoomName = string.Empty;
+			this.PlayerName = string.Empty;
+			this.Password = 0;
+			this.State = State.None;
+			this.IsDrawing = false;
+			this.Points = 0;
+		}
 	}
 
 	[Serializable]

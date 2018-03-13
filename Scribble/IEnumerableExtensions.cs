@@ -12,7 +12,9 @@ namespace Scribble
 
 		static public T Pick<T>(this IEnumerable<T> data)
 		{
-			return data.ElementAt(random.Next(data.Count()));
+			if (data.Count() > 0)
+				return data.ElementAt(random.Next(data.Count()));
+			return default(T);
 		}
 	}
 }
